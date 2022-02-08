@@ -1,0 +1,18 @@
+{% extends 'general/base.html' %}
+{% load staticfiles %}
+{% block body %}
+<section class="content">
+    <div class="error-page">
+        <h2 class="headline text-warning">404</h2>
+        <div class="error-content">
+            <br>
+            <h3><i class="fas fa-exclamation-triangle text-warning"></i> Упс! Ваш запрос не найден</h3>
+            <p>
+                {{ exception_message }}!
+                <br>
+                Вы можете <a href="{% url 'ikr:list_ikr' %}">вернуться на Главная страница.</a>
+            </p>
+        </div>
+    </div>
+</section>
+{% endblock %}

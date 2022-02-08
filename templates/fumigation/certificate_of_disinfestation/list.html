@@ -1,0 +1,256 @@
+{% extends 'general/base.html' %}
+{% load staticfiles %}
+{% block body %}
+{% load base %}
+{% user_groups request.user as user_groups %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="box box-info">
+            <form class="form-horizontal" action="{% url 'fumigation:download_certificate_of_disinfestation_list' %}" method="get">
+                {% csrf_token %}
+                <div class="row" class="box-body">
+                    <div class="col-lg-3 col-md-12 col-sm-12">
+                        <div class="form-group">
+                            <input type="date" min="2020-08-01" name="beginning_of_interval" id="beginning_of_interval" onfocusout="myFunction()" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-12 col-sm-12">
+                        <div class="form-group">
+                            <input type="date" name="end_of_interval" id="end_of_interval" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="form-group col-lg-4 col-md-12 col-sm-12">
+                        <select class="form-control" name="region_pk" required>
+                            {% if 'Republic managers' in user_groups %}
+                            <option value="" disabled selected>Выберите регион</option>
+                            <option value="15">Все</option>
+                            {% for region in regions %}
+                            <option value="{{region.pk}}">{{region.name_ru}}</option>
+                            {% endfor %}
+                            {% else %}
+                            <option value="{{request.user.point.region.pk}}">{{request.user.point.region.name_ru}}
+                            </option>
+                            {% endif %}
+                        </select>
+                    </div>
+                    <div class="col-lg-2">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <button type="submit" class="btn btn-info form-control"><i class="fas fa-download"></i>
+                                </button>
+                            </div>
+                            <div class="col-lg-6">
+                                <a href="" data-toggle="modal" data-target="#add" class="btn btn-danger form-control"><i class="fas fa-plus"></i></a>
+                                <div class="modal fade" id="add" aria-hidden="true" style="display: none;">
+                         <div class="modal-dialog">
+                             <div class="modal-content">
+                                 <form action="/register-new-user" method="post" enctype="multipart/form-data">
+                            <input type="hidden" name="csrfmiddlewaretoken" value="3pPd6DfQv5CUe88QZpoBaH2rB35KJ5MlvGT4JPcz3FUTEC3iBy3faOE54enNT7Zw">
+                            <div class="modal-header">
+                                <h5 class="box-title">Создать новый АКТ ОБЕЗЗАРАЖИВАНИЯ</h5>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row">
+                                <div class="col-lg-6">
+                                <a href="{% url 'fumigation:add_certificate_of_disinfestation' %}?disinfestation_type=1" class="btn btn-success form-control">
+                                    Фумигация
+                                </a>
+                                </div>
+                                <div class="col-lg-6">
+                                <a href="{% url 'fumigation:add_certificate_of_disinfestation' %}?disinfestation_type=2" class="btn btn-info form-control">
+                                    Влажная Обработка
+                                </a>
+                                </div>
+                                </div>
+                                <br>
+                                <div class="row">
+                                <div class="col-lg-6">
+                                <a href="{% url 'fumigation:add_certificate_of_disinfestation' %}?disinfestation_type=3" class="btn btn-danger form-control">
+                                    Термическая обработка
+                                </a>
+                                </div>
+                                <div class="col-lg-6">
+                                <a href="{% url 'fumigation:add_certificate_of_disinfestation' %}?disinfestation_type=4" class="btn btn-warning form-control">
+                                    Аэрозольная обработка
+                                </a>
+                                </div>
+                                </div>
+                                <!-- /.modal-content -->
+                            </div>
+                            <div class="modal-footer justify-content-between">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">
+                                    Закрыть
+                                </button>
+                            </div>
+                                </form>
+                             </div>
+                             <!-- /.modal-content -->
+                         </div>
+                         <!-- /.modal-dialog -->
+                    </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+<div class="row">
+    {% if certificates_of_disinfestation %}
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header" id="others">
+                <h3 class="card-title">Реестр АКТ ОБЕЗЗАРАЖИВАНИЯ</h3>
+                <div class="card-tools">
+                    <form action="" method="get">
+                        <div class="input-group input-group-sm" style="width: 250px;">
+                            <input required name="number" class="form-control float-right"
+                            {% if number %} value="{{number}}" {% else %} placeholder="Введите номер АКТ ОБЕЗЗАРАЖИВАНИЯ" {% endif %}/>
+                            <div class="input-group-append">
+                                <button type="submit" class="btn btn-default"><i class="fas fa-search"></i></button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="card-header" id="mobile">
+                <div class="row">
+                    <div class="col-12">
+                        <h3 class="card-title">Реестр АКТ ОБЕЗЗАРАЖИВАНИЯ</h3>
+                    </div>
+                    <div class="col-12" style="text-align: center;">
+                        <div class="card-tools" style="width:100%;">
+                            <form action="" method="get">
+                                <div class="input-group input-group-sm" style="width: 250px;">
+                                    <input required name="number" class="form-control float-right"
+                                    {% if number %} value="{{number}}" {% else %} placeholder="Введите номер АКТ ОБЕЗЗАРАЖИВАНИЯ" {% endif %}/>
+                                    <div class="input-group-append">
+                                        <button type="submit" class="btn btn-default"><i class="fas fa-search"></i></button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- /.card-header -->
+            <div class="card-body table-responsive p-0">
+                <table class="table table-striped">
+                    <thead align="center">
+                    <tr>
+                        <th>№</th>
+                        <th>АКТ ОБЕЗЗАРАЖИВАНИЯ №</th>
+                        <th>ДАТА ВЫДАЧИ</th>
+                        <th>Инспекция</th>
+                        <th>Название Заказчик</th>
+                        <th>ИНН Заказчик</th>
+                        <th>Страна отправитель</th>
+                        <th>Объем</th>
+                        <th>вид объекта</th>
+                        <th>метод</th>
+                        <th>инсектицид</th>
+                        <th>дозировка</th>
+                        <th>Цена в дек.</th>
+                        <th>Общая сумма</th>
+                        <th>израсходован</th>
+                        <th>Ф.И.О фумигатор</th>
+                        <th>Ф.И.О ИНСПЕКТОРА</th>
+                        <th>Ф.И.О Заказчик</th>
+                        <th><i class="fas fa-edit"></i></th>
+                        <th><i class="fas fa-copy"></i></th>
+<!--                        <th><i class="fas fa-trash"></i></th>-->
+<!--                        <th><img src="{% static 'dist/img/reject.png' %}" width="25px"></th>-->
+                    </tr>
+                    </thead>
+                    <tbody align="center">
+                    {% for certificate_of_disinfestation in certificates_of_disinfestation %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>
+                            <a href="{% url 'fumigation:print_certificate_of_disinfestation' number=certificate_of_disinfestation.number %}" target="_blank">
+                                {{certificate_of_disinfestation.number}}
+                            </a>
+                        </td>
+                        <td>{{certificate_of_disinfestation.given_date}}</td>
+                        <td>{{certificate_of_disinfestation.inspection}}</td>
+                        <td>{{certificate_of_disinfestation.organization_name}}</td>
+                        <td>
+                            {% if 'Republic Manager Fumigator' in user_groups %}
+                                <form action="{% url 'fumigation:edit_certificate_of_disinfestation_organization_tin' pk=certificate_of_disinfestation.pk %}" method="post">
+                                    {% csrf_token %}
+                                    <div class="row">
+                                        <div class="col-lg-10 col-md-10 col-sm-12">
+                                            <div class="form-group">
+                                                <input type="number" min="100000000" max="999999999" name="organization_tin" value="{{certificate_of_disinfestation.organization_tin}}" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-2 col-md-2 col-sm-12">
+                                            <div class="form-group">
+                                                <button type="submit"><i class="nav-icon fas fa-check"></i></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            {% else %}
+                                {{certificate_of_disinfestation.organization_tin}}
+                            {% endif %}
+                        </td>
+                        <td>{{certificate_of_disinfestation.country}}</td>
+                        <td>{{certificate_of_disinfestation.disinfected_building_volume}} {{certificate_of_disinfestation.disinfected_building_unit.name_ru}}</td>
+                        <td>{{certificate_of_disinfestation.disinfected_building_type}}</td>
+                        <td>{{certificate_of_disinfestation.get_disinfestation_type_display}}</td>
+                        <td>{{certificate_of_disinfestation.insecticide}}</td>
+                        <td>{{certificate_of_disinfestation.insecticide_dosage}}</td>
+                        <td>{{certificate_of_disinfestation.declaration_price}} сум</td>
+                        <td>{{certificate_of_disinfestation.total_price}} сум</td>
+                        <td>{{certificate_of_disinfestation.expended_insecticide_amount}} {{certificate_of_disinfestation.insecticide_unit.name_ru}}</td>
+                        <td>{{certificate_of_disinfestation.fumigator_fullname}}</td>
+                        <td>{{certificate_of_disinfestation.inspector_fullname}}</td>
+                        <td>{{certificate_of_disinfestation.customer}}</td>
+                        <td>
+                            <a href="{% url 'fumigation:edit_certificate_of_disinfestation' pk=certificate_of_disinfestation.pk %}" style="color:red;">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                        </td>
+                        <td>
+                            <a href="{% url 'fumigation:add_certificate_of_disinfestation' %}?exist_certificate_of_disinfestation_pk={{certificate_of_disinfestation.pk}}&disinfestation_type={{certificate_of_disinfestation.disinfestation_type}}" style="color:red;">
+                                <i class="fas fa-copy"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer clearfix">
+                {% include "general/pagination.html" with page=certificates_of_disinfestation %}
+            </div>
+        </div>
+        <!-- /.card -->
+    </div>
+    {% endif %}
+</div>
+<!-- /.row -->
+<script>
+function myFunction() {
+  var x = document.getElementById("beginning_of_interval").value;
+  var needed=x.split("-")
+  console.log(needed[0])
+  var maxified = new Date(needed[0], needed[1], needed[2]);
+  var dd = maxified.getDate();
+  var mm = maxified.getMonth()+2; //January is 0!
+  var yyyy = maxified.getFullYear();
+  if(dd<10){
+        dd='0'+dd
+    }
+    if(mm<10){
+        mm='0'+mm
+    }
+  maxified= yyyy+'-'+mm+'-'+dd;
+  console.log(maxified)
+  document.getElementById("end_of_interval").setAttribute("max", maxified);
+}
+</script>
+{% endblock %}

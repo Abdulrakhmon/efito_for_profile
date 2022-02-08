@@ -1,0 +1,201 @@
+{% load staticfiles %}
+{% load qr_code %}
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>A4</title>
+    <link rel="stylesheet" href="{% static 'dist/css/normalize.min.css' %}">
+    <link rel="stylesheet" href="{% static 'dist/css/paper.css' %}">
+    <style>
+      @page { size: A4 }
+      table, th, td {
+        border: 1px solid black;
+        border-collapse: collapse;
+        font-size:13.5px;
+      }
+    </style>
+    <script>
+        function printDiv(divName){
+            var printContents = document.getElementById(divName).innerHTML;
+            var originalContents = document.body.innerHTML;
+            document.body.innerHTML = printContents;
+            window.print();
+            document.body.innerHTML = originalContents;
+        }
+
+        var doc = new jsPDF();
+        $('#generatereport').click(function() {
+        doc.fromHTML($('#lppresults')[0], 15, 15, {
+            width: 170
+        }, function() {
+            doc.save('sample-file.pdf');
+        });
+        });
+    </script>
+</head>
+<body class="A4">
+<div id="tbotd">
+  <section  id="printKKD" class="sheet padding-0mm" style="font-size: 15px; font-family: Calibri;">
+    <article style="position:absolute;left:5mm;top:4mm">{% qr_from_text certificate_of_disinfestation_qr_code_link size=7 %}</article>
+    <article style="position:absolute;left:41mm;top:8mm;font-size: 18px;font-weight: bold;">АГЕНТСТВО ПО  КАРАНТИНУ И ЗАЩИТЕ РАСТЕНИЙ</article>
+    <article style="position:absolute;left:45mm;top:13mm;font-size: 18px;font-weight: bold;">РЕСПУБЛИКИ УЗБЕКИСТАН</article>
+    <article style="position:absolute;left:41mm;top:19mm;font-size: 18px;font-weight: bold;">Agency of Plant Protection and Quarantine </article>
+    <article style="position:absolute;left:53mm;top:24mm;font-size: 18px;font-weight: bold;">OF THE REPUBLIC OF UZBEKISTAN</article>
+    <article style="position:absolute;left:60mm;top:30mm;font-size: 18px;font-weight: bold;">АКТ ОБЕЗЗАРАЖИВАНИЯ № <span style="color:red;">{{ certificate_of_disinfestation.number}}</span></article>
+    <article style="position:absolute;left:33mm;top:35mm;font-size: 18px;font-weight: bold;">CERTIFICATE OF DISINFESTATION AND/OR DISINFECTION TREATMENT</article>
+    <article style="position:absolute;left:170mm;top:4mm"><img src="{% static "dist/img/logo.png" %}" width="110px"></article>
+
+    <article style="position:absolute;left:27mm;top:47mm;font-weight: bold;">{{ certificate_of_disinfestation.given_date|date:"d-m-Y" }}</article>
+    <article style="position:absolute;left:25mm;top:47.5mm">___________</article>
+    <article style="position:absolute;left:165mm;top:47mm;font-weight: bold;">{{ certificate_of_disinfestation.inspection }}</article>
+    <article style="position:absolute;left:160mm;top:47.5mm">__________________</article>
+
+    <article style="position:absolute;left:100mm;top:59mm;font-weight: bold;">{{disinfected_product_part1}}</article>
+    <article style="position:absolute;left:15mm;top:55mm">Настоящий акт о том, что фумигатором проведено обеззараживание</article>
+    <article style="position:absolute;left:15mm;top:59.5mm">This is to certify that the fumigator disinfected ______________________________________________________</article>
+    <article style="position:absolute;left:20mm;top:64mm;font-weight: bold;">{{disinfected_product_part2}}</article>
+    <article style="position:absolute;left:15mm;top:64.5mm">_____________________________________________________________________________________________</article>
+
+    <article style="position:absolute;left:15mm;top:70mm">Заказчик </article>
+    <article style="position:absolute;left:15mm;top:74mm">Customer ____________________________________________________________________________________</article>
+    <article style="position:absolute;left:50mm;top:73.5mm;font-weight: bold;">{{certificate_of_disinfestation.organization_name}} &nbsp&nbsp&nbsp&nbsp
+                          {% if certificate_of_disinfestation.organization_tin != certificate_of_disinfestation.fumigator.tin %}{{word_tin}} {{certificate_of_disinfestation.organization_tin}}{% endif %}
+    </article>
+
+    <article style="position:absolute;left:15mm;top:80mm">Страна отправитель/получатель </article>
+    <article style="position:absolute;left:15mm;top:84.5mm">Exporting/importing state_______________________________________________________________________</article>
+    <article style="position:absolute;left:110mm;top:84mm;font-weight: bold;">{{country}}</article>
+
+    <article style="position:absolute;left:15mm;top:90mm">Объем и вид обеззараженного объекта </article>
+    <article style="position:absolute;left:15mm;top:94.5mm">Volume and type of disinfected building ___________________________________________________________</article>
+    <article style="position:absolute;left:110mm;top:94mm;font-weight: bold;"> {{disinfected_building_type}} &nbsp&nbsp&nbsp-&nbsp&nbsp&nbsp {{disinfected_building_volume}} {{disinfected_building_unit}}</article>
+
+    <article style="position:absolute;left:20mm;top:100mm;font-weight: bold;">{{certificate_of_disinfestation.disinfected_building_info}}</article>
+    <article style="position:absolute;left:15mm;top:100.5mm">____________________________________________________________________________________________</article>
+    <article style="position:absolute;left:15mm;top:105.5mm">____________________________________________________________________________________________</article>
+    <article style="position:absolute;left:15mm;top:110.5mm">____________________________________________________________________________________________</article>
+
+    <article style="position:absolute;left:15mm;top:117mm">Обеззараживание проведено следующим методом </article>
+    <article style="position:absolute;left:15mm;top:121.5mm">Disinfestation and/or disinfection treatment was carried by the following method ________________________</article>
+    <article style="position:absolute;left:155mm;top:121mm;font-weight: bold;">{{disinfestation_type}}</article>
+    {% if certificate_of_disinfestation.disinfestation_type != 3 %}
+    <article style="position:absolute;left:15mm;top:126.5mm">____________________________________________________________________________________________</article>
+    <article style="position:absolute;left:15mm;top:141mm">a) наименование инсектицида и его дозировка</article>
+    <article style="position:absolute;left:15mm;top:145.5mm">name of insecticide and its dosage _______________________________________________________________</article>
+    <article style="position:absolute;left:130mm;top:145mm;font-weight: bold;">{{certificate_of_disinfestation.insecticide.formula.formula|safe}} &nbsp&nbsp&nbsp&nbsp&nbsp  {{insecticide_dosage}} {{insecticide_unit}}/{{disinfected_building_unit}}</article>
+
+    <article style="position:absolute;left:15mm;top:153mm">b) температура груза и помещения </article>
+    <article style="position:absolute;left:15mm;top:157.5mm">temperature of goods and premise _______________________________________________________________</article>
+    <article style="position:absolute;left:130mm;top:157mm;font-weight: bold;">{{certificate_of_disinfestation.temperature}} &deg;C</article>
+
+    <article style="position:absolute;left:15mm;top:164mm">c) экспозиция &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp часов &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp минут               </article>
+    <article style="position:absolute;left:15mm;top:168.5mm">exposition  _________hours ______minutes________________________________________________________</article>
+    <article style="position:absolute;left:40mm;top:167mm;font-weight: bold;">{{exposition_hours}}</article>
+    <article style="position:absolute;left:65mm;top:167mm;font-weight: bold;">{{exposition_minutes}}</article>
+
+    <article style="position:absolute;left:15mm;top:178mm">d) начало обеззараживания &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp завершение &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp               </article>
+    <article style="position:absolute;left:15mm;top:182.5mm">beginning of disinfection __________________________end__________________________________________ </article>
+    <article style="position:absolute;left:65mm;top:182mm;font-weight: bold;">{{certificate_of_disinfestation.beginning_of_disinfection|date:"d-m-Y H:i:s"}}</article>
+    <article style="position:absolute;left:150mm;top:182mm;font-weight: bold;">{{certificate_of_disinfestation.ending_of_disinfection|date:"d-m-Y H:i:s"}}</article>
+
+    <article style="position:absolute;left:15mm;top:190mm">e) израсходован инсектицид </article>
+    <article style="position:absolute;left:15mm;top:194.5mm">expended insecticide___________________________________________________________________________</article>
+    <article style="position:absolute;left:115mm;top:194mm;font-weight: bold;">{{certificate_of_disinfestation.insecticide.formula.formula|safe}} {{certificate_of_disinfestation.expended_insecticide_amount}} {{insecticide_unit}}</article>
+
+    <article style="position:absolute;left:15mm;top:203mm">f) время затраченное на дегазацию </article>
+    <article style="position:absolute;left:15mm;top:207.5mm">time spent for degassing _______________________________________________________________________</article>
+    <article style="position:absolute;left:115mm;top:207mm;font-weight: bold;">{{certificate_of_disinfestation.degassing_time}}</article>
+    <article style="position:absolute;left:15mm;top:215mm">g) в качестве биоиндикатора использован </article>
+    <article style="position:absolute;left:15mm;top:219.5mm">as a bio indicator is used _______________________________________________________________________</article>
+    <article style="position:absolute;left:115mm;top:219mm;font-weight: bold;">{{bio_indicator}}</article>
+    {%else%}
+    <article style="position:absolute;left:15mm;top:127mm">
+    Цикл термической обработки<br>Heat treatment cycle
+    <table style="width:180mm;">
+      <tr>
+        <th></th>
+        <th style="min-width:70px;">Дата Date</th>
+        <th>Время Time</th>
+        <th>Температура обрабатываемого<br> материала Temperature of<br>the processed material &deg;C</th>
+        <th>Влажность обрабатываемого<br> материала Humidity of<br>the processed material %</th>
+      </tr>
+      <tr>
+          <td>Начало цикла<br>Start of the cycle</td>
+          <td style="text-align:center">{{certificate_of_disinfestation.beginning_of_cycle|date:"d-m-Y"}}</td>
+          <td style="text-align:center">{{certificate_of_disinfestation.beginning_of_cycle|date:"H:i:s"}}</td>
+          <td style="text-align:center">{{certificate_of_disinfestation.temperature_in_beginning_of_cycle}}</td>
+          <td style="text-align:center">{{certificate_of_disinfestation.wetness_in_beginning_of_cycle}}</td>
+      </tr>
+      <tr>
+        <td>Начало термической обработки<br>Start of heat treatment</td>
+          <td style="text-align:center">{{certificate_of_disinfestation.beginning_of_heat_treatment|date:"d-m-Y"}}</td>
+          <td style="text-align:center">{{certificate_of_disinfestation.beginning_of_heat_treatment|date:"H:i:s"}}</td>
+          <td style="text-align:center">{{certificate_of_disinfestation.temperature_in_beginning_of_heat_treatment}}</td>
+          <td style="text-align:center">{{certificate_of_disinfestation.wetness_in_beginning_of_heat_treatment}}</td>
+      </tr>
+      <tr>
+        <td>Конец термической обработки<br>End of heat treatment</td>
+          <td style="text-align:center">{{certificate_of_disinfestation.ending_of_heat_treatment|date:"d-m-Y"}}</td>
+          <td style="text-align:center">{{certificate_of_disinfestation.ending_of_heat_treatment|date:"H:i:s"}}</td>
+      </tr>
+      <tr>
+        <td>Конец цикла<br>End of cycle</td>
+          <td style="text-align:center">{{certificate_of_disinfestation.ending_of_cycle|date:"d-m-Y"}}</td>
+          <td style="text-align:center">{{certificate_of_disinfestation.ending_of_cycle|date:"H:i:s"}}</td>
+      </tr>
+    </table>
+        <table style="width:180mm;">
+      <tr>
+        <td>Соответствие термической обработке установленным нормам<br>Compliance of heat treatment with the established standards</td>
+          <td>Соответствует<br>Conform</td>
+          <td>Не соответствует<br>Does not conform</td>
+      </tr>
+      <tr>
+        <td>Фактическая длительность термической обработки<br>Actual duration of heat treatment</td>
+          {% if is_duration_in_established_standard %}
+          <td style="text-align:center">Да</td>
+          <td></td>
+          {% else %}
+          <td></td>
+          <td style="text-align:center">Нет</td>
+          {% endif %}
+      </tr>
+      <tr>
+        <td>Фактическая температура термической обработки<br>Actual heat treatment temperature</td>
+          {% if is_temperature_in_established_standard %}
+          <td style="text-align:center">Да</td>
+          <td></td>
+          {% else %}
+          <td></td>
+          <td style="text-align:center">Нет</td>
+          {% endif %}
+      </tr>
+    </table>
+    </article>
+    <article style="position:absolute;left:15mm;top:226mm">в качестве биоиндикатора использован </article>
+    <article style="position:absolute;left:15mm;top:230.5mm">as a bio indicator is used _______________________________________________________________________</article>
+    <article style="position:absolute;left:115mm;top:230mm;font-weight: bold;">{{bio_indicator}}</article>
+    {%endif%}
+
+    <article style="position:absolute;left:15mm;top:236mm;font-weight: bold;">Заключение о результатах обеззараживания </article>
+    <article style="position:absolute;left:15mm;top:240.5mm;font-weight: bold;">Conclusion on the results of disinfestation and/or disinfection treatment  _______________________________</article>
+    <article style="position:absolute;left:155mm;top:240mm;font-weight: bold;">{{certificate_of_disinfestation.disinfection_result}}</article>
+
+    <article style="position:absolute;left:15mm;top:250mm;font-weight: bold;">Подписи участников / Signatures of participants: </article>
+
+    <article style="position:absolute;left:30mm;top:256mm;font-weight: bold;">Агроном-фумигатор </article>
+    <article style="position:absolute;left:30mm;top:260.5mm;font-weight: bold;">Agronomist fumigator   __________________________________________________________</article>
+    <article style="position:absolute;left:145mm;top:260mm;font-weight: bold;">{{certificate_of_disinfestation.fumigator_fullname}}</article>
+
+    <article style="position:absolute;left:30mm;top:266mm;font-weight: bold;">Государственный инспектор по карантину </article>
+    <article style="position:absolute;left:30mm;top:270.5mm;font-weight: bold;">State inspector for plant quarantine _______________________________________________</article>
+    <article style="position:absolute;left:145mm;top:270mm;font-weight: bold;">{{certificate_of_disinfestation.inspector_fullname}}</article>
+
+    <article style="position:absolute;left:30mm;top:276mm;font-weight: bold;">Заказчик </article>
+    <article style="position:absolute;left:30mm;top:280.5mm;font-weight: bold;">Customer _____________________________________________________________________</article>
+    <article style="position:absolute;left:145mm;top:280mm;font-weight: bold;">{{certificate_of_disinfestation.customer}}</article>
+    <article style="position:absolute;left:7mm;top:264mm;"></article>
+  </section>
+</div>
+</body>
+</html>

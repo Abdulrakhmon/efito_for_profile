@@ -1,0 +1,11 @@
+.idea/
+.vscode/
+migrations/
+__pycache__/
+media/
+venv/
+logs/
+db.sqlite3
+efito_for_profile/.env
+*.log
+*.pid

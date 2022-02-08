@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+{% load staticfiles %}
+{% load base %}
+{% user_groups request.user as user_groups %}
+<html>
+<head>
+    {% if 'External Control' in user_groups %}
+        <meta http-equiv="refresh" content="0;URL='{% url 'exim:applications_list' %}'" />
+    {% endif %}
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'dist/img/uzbekistan_symbol.png' %}">
+    <title>efito.uz</title>
+    <!-- <link rel="shortcut icon" href="{% static 'dist/img/logo.png' %}" />-->
+    <!-- Tell the browser to be responsive to screen width -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Custom css -->
+    <link rel="stylesheet" href="{% static 'dist/css/custom.css' %}">
+    <link rel="stylesheet" href="{% static 'dist/css/mobile.css' %}">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="{% static 'plugins/fontawesome-free/css/all.min.css' %}">
+    <!-- Ionicons -->
+    <link rel="stylesheet" href="{% static 'dist/css/ionicons.min.css' %}">
+    <!-- Tempusdominus Bbootstrap 4 -->
+    <link rel="stylesheet"
+          href="{% static 'plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css' %}">
+    <!-- iCheck -->
+    <link rel="stylesheet" href="{% static 'plugins/icheck-bootstrap/icheck-bootstrap.min.css' %}">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="{% static 'dist/css/adminlte.min.css' %}">
+    <link rel="stylesheet" href="{% static 'plugins/select2/css/select2.min.css' %}">
+    <link rel="stylesheet" href="{% static 'plugins/datatables-bs4/css/dataTables.bootstrap4.css' %}">
+    <link rel="stylesheet" href="{% static 'dist/css/fonts.css' %}">
+    <link rel="stylesheet" href="{% static 'plugins/select2/css/select2.min.css' %}">
+    <link rel="stylesheet" href="{% static 'plugins/bootstrap-select/bootstrap-select.css' %}">
+    <link rel="stylesheet" href="{% static 'plugins/selectable/css/ajax-bootstrap-select.css' %}">
+
+    <!-- jQuery -->
+    <script src="{% static 'plugins/jquery/jquery.min.js' %}"></script>
+    <script src="{% static 'dist/js/jquery.repeatable.js' %}"></script>
+    {% block header %}{% endblock %}
+</head>
+<body class="hold-transition sidebar-mini layout-fixed">
+<div class="wrapper">
+    <!-- Navbar -->
+    <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+        <!-- Left navbar links -->
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link" data-widget="pushmenu" href="#"><i class="fas fa-bars"></i></a>
+            </li>
+        </ul>
+
+        <!-- Right navbar links -->
+        <ul class="navbar-nav ml-auto">
+            <!-- Messages Dropdown Menu -->
+            <li class="nav-item dropdown">
+                <div class="user-panel d-flex">
+                    <div class="info">
+                        <a href="#" class="d-block" style="color: green;">{{ request.user.name_ru }}</a>
+                    </div>
+                </div>
+            </li>
+            <li class="nav-item dropdown">
+                <div class="user-panel d-flex">
+                    <div class="info">
+                        <a href="{% url 'administration:logout' %}" class="d-block" style="color: green;"><i class="nav-icon fas fa-sign-out-alt text-yellow" style="color: red;"></i></a>
+                    </div>
+                </div>
+            </li>
+            <!-- Notifications Dropdown Menu -->
+        </ul>
+    </nav>
+    <!-- /.navbar -->
+
+    <!-- Main Sidebar Container -->
+    <aside class="main-sidebar sidebar-dark-primary elevation-4">
+        <!-- Brand Logo -->
+        <a href="{% url 'exim:list_ikr' %}" class="logo-pane" style="background-color: #0A3D2A;">
+            <img src="{% static 'dist/img/logo.png' %}" alt="efito.uz" class="brand-image" style="margin-right:1em;">
+            <span class="brand-text font-weight">efito.uz</span>
+        </a>
+        <!-- Sidebar -->
+        <div class="sidebar" style="background-color: #0C4B33;">
+            <!-- Sidebar user panel (optional) -->
+            <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+                <div class="image">
+                    <img src="{% static 'dist/img/map_marker.png' %}">
+                </div>
+                <div class="info">
+                    <a href="{% url 'exim:list_ikr' %}" class="d-block" style="color: yellow;">{{request.user.point.name_ru|default:"Название точки"}}</a>
+                </div>
+            </div>
+            <!-- Sidebar Menu -->
+            <nav class="mt-2">
+                <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu"
+                    data-accordion="false">
+                    <!-- Add icons to the links using the .nav-icon class
+                         with font-awesome or any other icon font library -->
+                    <li class="nav-header">Меню</li>
+                    <li class="nav-item">
+                        {% url 'exim:export_fss_agro_monitor' as nav_url %}
+                        <a href="#" class="nav-link" onclick="showExImBlanksList()">
+                            <img src="{% static 'dist/img/exim.png' %}" width="25px">  &nbsp&nbsp&nbsp
+                            <p>
+                                ExIm
+                            </p>
+                        </a>
+                        <ul style="display: none;list-style-type : none;" id="ExImBlanksList">
+                            {% if perms.exim.list_republic_ikr %}
+                            <li class="nav-item">
+                                {% url 'exim:graphical_monitoring' as nav_url %}
+                                <a href="{{ nav_url }}" class="nav-link {% if request.path == nav_url %} active {% endif %}">
+                                    <p>
+                                        <img src="{% static 'dist/img/bar_chart.png' %}" width="25px">&nbsp;&nbsp; Мониторинг
+                                    </p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                {% url 'exim:list_ikr' as nav_url %}
+                                <a href="{{ nav_url }}" class="nav-link {% if request.path == nav_url %} active {% endif %}">
+                                    <img src="{% static 'dist/img/ikr.png' %}" width="25px"> &nbsp&nbsp&nbsp
+                                    <p>
+                                        КР
+                                    </p>
+                                </a>
+                            </li>
+                            {% endif %}
+                            {% if perms.exim.list_republic_akd or perms.exim.list_region_akd or perms.exim.list_point_akd or perms.exim.list_akd %}
+                            <li class="nav-item">
+                                {% url 'exim:list_akd' as nav_url %}
+                                <a href="{{ nav_url }}" class="nav-link {% if request.path == nav_url %} active {% endif %}">
+                                    <img src="{% static 'dist/img/akd.png' %}" width="25px"> &nbsp&nbsp&nbsp
+                                    <p>
+                                        АКД
+                                    </p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                {% url 'exim:list_export_fss' as nav_url %}
+                                <a href="{{ nav_url }}" class="nav-link {% if request.path == nav_url %} active {% endif %}">
+                                    <img src="{% static 'dist/img/akd.png' %}" width="25px"> &nbsp&nbsp&nbsp
+                                    <p>
+                                        Экспорт ФСС
+                                    </p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                {% url 'exim:list_import_fss' as nav_url %}
+                                <a href="{{ nav_url }}" class="nav-link {% if request.path == nav_url %} active {% endif %}">
+                                    <img src="{% static 'dist/img/akd.png' %}" width="25px"> &nbsp&nbsp&nbsp
+                                    <p>
+                                        Импорт ФСС
+                                    </p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                {% url 'exim:list_old_akd' as nav_url %}
+                                <a href="{{ nav_url }}" class="nav-link {% if request.path == nav_url %} active {% endif %}">
+                                    <img src="{% static 'dist/img/akd.png' %}" width="25px"> &nbsp&nbsp&nbsp
+                                    <p>
+                                        АКД(Old)
+                                    </p>
+                                </a>
+                            </li>
+                            {% endif %}
+                            {% if perms.exim.list_republic_tbotd or perms.exim.list_region_tbotd or perms.exim.list_point_tbotd or perms.exim.list_tbotd%}
+                            <li class="nav-item">
+                                {% url 'exim:list_tbotd' as nav_url %}
+                                <a href="{{ nav_url }}" class="nav-link {% if request.path == nav_url %} active {% endif %}">
+                                    <img src="{% static 'dist/img/tbotd.png' %}" width="25px">&nbsp&nbsp&nbsp
+                                    <p>
+                                        ТБД
+                                    </p>
+                                </a>
+                            </li>
+<!--                            <li class="nav-item">-->
+<!--                                {% url 'exim:list_tbotd_in_lab' as nav_url %}-->
+<!--                                <a href="{{ nav_url }}" class="nav-link {% if request.path == nav_url %} active {% endif %}">-->
+<!--                                    <img src="{% static 'dist/img/tbotd.png' %}" width="25px">&nbsp&nbsp&nbsp-->
+<!--                                    <p>-->
+<!--                                        ТБД(Лаб.)-->
+<!--                                        <span class="right badge badge-danger">New</span>-->
+<!--                                    </p>-->
+<!--                                </a>-->
+<!--                            </li>-->
+                            {% endif %}
+                            {% if perms.exim.list_republic_ikrshipment or perms.exim.list_region_ikrshipment or perms.exim.list_point_ikrshipment %}
+                            <li class="nav-item">
+                                {% url 'exim:list_transit' as nav_url %}
+                                <a href="{{ nav_url }}" class="nav-link {% if request.path == nav_url %} active {% endif %}">
+                                    <i class="nav-icon fas fa-file" style="color: yellow;"></i>&nbsp&nbsp&nbsp
+                                    <p>
+                                        Транзит
+                                    </p>
+                                </a>
+                            </li>
+                            {% endif %}
+                            {% if perms.exim.add_point_ikrshipment %}
+                            <li class="nav-item">
+                                {% url 'exim:my_shipment_list' as nav_url %}
+                                <a href="{{ nav_url }}" class="nav-link {% if request.path == nav_url %} active {% endif %}">
+                                    <i class="nav-icon fas fa-envelope text-yellow" style="color: yellow;"></i>&nbsp&nbsp
+                                    <p>
+                                        Мои уведомления
+                                    </p>
+                                </a>
+                            </li>
+                            {% endif %}
+                            <!--<li>
+                                <a href="pages/tables/data.html">
+                                    <i class="far fa-dot-circle fa-xs" style="color:yellow;"></i></i>&nbsp;&nbsp; АКД
+                                </a>
+                            </li>
+                            <li>
+                                <a href="pages/tables/data.html">
+                                    <i class="far fa-dot-circle fa-xs" style="color:yellow;"></i></i>&nbsp;&nbsp; Фумигация
+                                </a>
+                            </li>-->
+                        </ul>
+                        <script>
+                            function showExImBlanksList() {
+                              var x = document.getElementById("ExImBlanksList");
+                              if (x.style.display === "none") {
+                                x.style.display = "block";
+                              } else {
+                                x.style.display = "none";
+                              }
+                            }
+                        </script>
+                    </li>
+                    {% if 'Republic managers' in user_groups or 'Region managers' in user_groups or 'Fumigator' in user_groups or 'Region Manager Fumigator' in user_groups or  'Republic Manager Fumigator' in user_groups  %}
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" onclick="showFumigation()">
+                            <img src="{% static 'dist/img/fumigation.png' %}" width="40px">
+                            <p>
+                                ОБЕЗЗАРАЖИВАНИЯ
+                            </p>
+                        </a>
+                        <ul style="display: none;list-style-type : none;" id="showFumigation">
+                            <li class="nav-item">
+                                {% url 'fumigation:graphical_monitoring' as nav_url %}
+                                <a href="{{ nav_url }}" class="nav-link {% if request.path == nav_url %} active {% endif %}">
+                                    <p>
+                                        <img src="{% static 'dist/img/bar_chart.png' %}" width="25px">&nbsp;&nbsp; Мониторинг
+                                    </p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                {% url 'fumigation:list_certificate_of_disinfestation' as nav_url %}
+                                <a href="{{ nav_url }}" class="nav-link {% if request.path == nav_url %} active {% endif %}">
+                                    <p>
+                                        <i class="fas fa-list" style="color:yellow;"></i>&nbsp;&nbsp; АКТ ОБЕЗЗАРАЖ.
+                                    </p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                {% url 'fumigation:view_disinfected_objects_report' as nav_url %}
+                                <a href="{{ nav_url }}" class="nav-link {% if request.path == nav_url %} active {% endif %}">
+                                    <p>
+                                        <img src="{% static 'dist/img/disinfected_object.png' %}" width="20px">&nbsp;  Обеззараж. объекты
+                                    </p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                {% url 'fumigation:view_report_of_chemicals' as nav_url %}
+                                <a href="{{ nav_url }}" class="nav-link {% if request.path == nav_url %} active {% endif %}">
+                                    <p>
+                                        <img src="{% static 'dist/img/report.png' %}" width="20px">&nbsp;  Отчет по химикату
+                                    </p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                {% url 'fumigation:view_report_of_chambers' as nav_url %}
+                                <a href="{{ nav_url }}" class="nav-link {% if request.path == nav_url %} active {% endif %}">
+                                    <p>
+                                         <i class="fas fa-cubes" style="color:yellow;"></i>&nbsp Фум. камеры
+                                    </p>
+                                </a>
+                            </li>
+                        </ul>
+                        <script>
+                            function showFumigation() {
+                              var x = document.getElementById("showFumigation");
+                              if (x.style.display === "none") {
+                                x.style.display = "block";
+                              } else {
+                                x.style.display = "none";
+                              }
+                            }
+                        </script>
+                    </li>
+                    {% endif %}
+                    {% if 'Republic managers' in user_groups %}
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" onclick="showMonitoring()">
+                            <p>
+                                <img src="{% static 'dist/img/bar_chart.png' %}" width="25px">&nbsp;&nbsp;&nbsp;Мониторинг
+                            </p>
+                        </a>
+                        <ul style="display: none;list-style-type : none;" id="showMonitoring">
+                            <li>
+                                {% url 'exim:applications_monitoring' as nav_url %}
+                                <a href="{{ nav_url }}" class="{% if request.path == nav_url %} active {% endif %}">
+                                    <i class="far fa-dot-circle fa-xs" style="color:yellow;"></i>&nbsp;&nbsp; Зая́вки
+                                </a>
+                            </li>
+                            <li>
+                                {% url 'exim:export_fss_agro_monitor' as nav_url %}
+                                <a href="{{ nav_url }}"  class="{% if request.path == nav_url %} active {% endif %}">
+                                    <i class="far fa-dot-circle fa-xs" style="color:yellow;"></i>&nbsp;&nbsp; ФСС
+                                </a>
+                            </li>
+                            <li>
+                                {% url 'exim:akd_statistics' as nav_url %}
+                                <a href="{{ nav_url }}"  class="{% if request.path == nav_url %} active {% endif %}">
+                                    <i class="far fa-dot-circle fa-xs" style="color:yellow;"></i>&nbsp;&nbsp; АКД
+                                </a>
+                            </li>
+<!--                            <li>-->
+<!--                                {% url 'monitoring:akd' as nav_url %}-->
+<!--                                <a href="{{ nav_url }}"  class="{% if request.path == nav_url %} active {% endif %}">-->
+<!--                                    <i class="far fa-dot-circle fa-xs" style="color:yellow;"></i>&nbsp;&nbsp; АКД-->
+<!--                                </a>-->
+<!--                            </li>-->
+<!--                            <li>-->
+<!--                                {% url 'monitoring:export_fss' as nav_url %}-->
+<!--                                <a href="{{ nav_url }}"  class="{% if request.path == nav_url %} active {% endif %}">-->
+<!--                                    <i class="far fa-dot-circle fa-xs" style="color:yellow;"></i>&nbsp;&nbsp;  Экспорт ФСС-->
+<!--                                </a>-->
+<!--                            </li>-->
+<!--                            <li>-->
+<!--                                {% url 'monitoring:import_fss' as nav_url %}-->
+<!--                                <a href="{{ nav_url }}"  class="{% if request.path == nav_url %} active {% endif %}">-->
+<!--                                    <i class="far fa-dot-circle fa-xs" style="color:yellow;"></i>&nbsp;&nbsp;  Импорт ФСС-->
+<!--                                </a>-->
+<!--                            </li>-->
+                            <!--<li>
+                                <a href="pages/tables/data.html">
+                                    <i class="far fa-dot-circle fa-xs" style="color:yellow;"></i></i>&nbsp;&nbsp; АКД
+                                </a>
+                            </li>
+                            <li>
+                                <a href="pages/tables/data.html">
+                                    <i class="far fa-dot-circle fa-xs" style="color:yellow;"></i></i>&nbsp;&nbsp; Фумигация
+                                </a>
+                            </li>-->
+                        </ul>
+                        <script>
+                            function showMonitoring() {
+                              var x = document.getElementById("showMonitoring");
+                              if (x.style.display === "none") {
+                                x.style.display = "block";
+                              } else {
+                                x.style.display = "none";
+                              }
+                            }
+                        </script>
+                    </li>
+                    {% endif %}
+                    {% if perms.exim.list_own_ikrshipment or perms.exim.list_point_ikrshipment or perms.exim.list_republic_ikrshipment %}
+                    <li class="nav-item">
+                        {% url 'exim:list_shipment_for_border_inspector' as nav_url %}
+                        <a href="{{ nav_url }}" class="nav-link {% if request.path == nav_url %} active {% endif %}">
+                            <img src="/static/dist/img/tbotd.png" width="25px">
+                            &nbsp
+                            <p>
+                                ЎКЧМ журнали
+                            </p>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if perms.exim.can_approve_tbotd_extra_info %}
+                    <li class="nav-item">
+                        {% url 'exim:list_tbotd_in_agro_monitoring' as nav_url %}
+                        <a href="{{ nav_url }}" class="nav-link {% if request.path == nav_url %} active {% endif %}">
+                            <img src="/static/dist/img/tbotd.png" width="25px">
+                            &nbsp
+                            <p>
+                                Агро мониторинг
+                                {% tbotds_count_in_agro_monitoring as notification_count %}
+                                {% if notification_count %}
+                                    <span class="right badge badge-danger"> {{ notification_count }}</span>
+                                {% endif %}
+                            </p>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if perms.exim.list_republic_temporarily_stopped_shipments or perms.exim.list_region_temporarily_stopped_shipments or perms.exim.list_point_temporarily_stopped_shipment %}
+                    <li class="nav-item">
+                        {% url 'exim:temporarily_stopped_shipment_list' as nav_url %}
+                        <a href="{{ nav_url }}" class="nav-link {% if request.path == nav_url %} active {% endif %}">
+                            <i class="nav-icon fas fa-file" style="color: yellow;"></i>&nbsp&nbsp&nbsp
+                            <p>
+                                ХАБАРНОМА
+                                {% temporarily_stopped_shipment_on_process_count request=request as notification_count %}
+                                {% if notification_count %}
+                                    <span class="right badge badge-danger"> {{ notification_count }}</span>
+                                {% endif %}
+                            </p>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if perms.invoice.list_republic_invoice or perms.invoice.list_region_invoice %}
+                    <li class="nav-item">
+                        {% url 'invoice:list_invoice' as nav_url %}
+                        <a href="{{ nav_url }}" class="nav-link {% if request.path == nav_url %} active {% endif %}">
+                            <i class="nav-icon fas fa-money-check text-yellow" style="color: yellow;"></i>
+                            &nbsp&nbsp&nbsp
+                            <p>
+                                Оферта
+                            </p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        {% url 'invoice:list_invoice_payment' as nav_url %}
+                        <a href="{{ nav_url }}" class="nav-link {% if request.path == nav_url %} active {% endif %}">
+                            <i class="nav-icon fas fa-money-check text-yellow" style="color: yellow;"></i>
+                            &nbsp&nbsp&nbsp
+                            <p>
+                                Платежи
+                            </p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        {% url 'invoice:view_inspection_requisite' pk=request.user.point.region.pk as nav_url %}
+                        <a href="{{ nav_url }}" class="nav-link {% if request.path == nav_url %} active {% endif %}">
+                            <i class="nav-icon fas fa-file-excel text-yellow" style="color: yellow;"></i>
+                            &nbsp&nbsp&nbsp
+                            <p>
+                                Реквизит
+                            </p>
+                        </a>
+                    </li>
+                    {% endif %}
+                    <li class="nav-item">
+                        {% url 'exim:applications_list' as nav_url %}
+                        <a href="{{ nav_url }}" class="nav-link {% if request.path == nav_url %} active {% endif %}">
+                            <i class="nav-icon fas fa-file" style="color: yellow;"></i>&nbsp&nbsp
+                            <p>
+                                Тек. этап об-ка
+                            </p>
+                        </a>
+                    </li>
+                    {% if 'IKR Considered User' in user_groups or perms.exim.consider_ikr_renewal_application %}
+                    <li class="nav-item">
+                        {% url 'exim:ikr_application_list' as nav_url %}
+                        <a href="{{ nav_url }}" class="nav-link {% if request.path == nav_url %} active {% endif %}">
+                            <i class="nav-icon fas fa-file" style="color: yellow;"></i>&nbsp&nbsp
+                            <p>
+                                Распр.(КР)
+                                {% unreceived_ikr_applicants_count request=request as notification_count %}
+                                {% if notification_count %}
+                                    <span class="right badge badge-danger"> {{ notification_count }}</span>
+                                {% endif %}
+                            </p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        {% url 'exim:received_ikr_application_list' as nav_url %}
+                        <a href="{{ nav_url }}" class="nav-link {% if request.path == nav_url %} active {% endif %}">
+                            <i class="nav-icon fas fa-file" style="color: yellow;"></i>&nbsp&nbsp
+                            <p>
+                                Рассмот.(КР)
+                                {% received_ikr_applicants_count request=request as notification_count %}
+                                {% if notification_count %}
+                                    <span class="right badge badge-danger"> {{ notification_count }}</span>
+                                {% endif %}
+                            </p>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if perms.exim.approve_republic_ikr %}
+                    <li class="nav-item">
+                        {% url 'exim:unapproved_ikr_list' as nav_url %}
+                        <a href="{{ nav_url }}" class="nav-link {% if request.path == nav_url %} active {% endif %}">
+                            <i class="nav-icon fas fa-file" style="color: yellow;"></i>&nbsp&nbsp
+                            <p>
+                                Неутверж.(КР)
+                                {% unapproved_ikrs_count request=request as notification_count %}
+                                {% if notification_count %}
+                                    <span class="right badge badge-danger"> {{ notification_count }}</span>
+                                {% endif %}
+                            </p>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if perms.exim.add_point_akd %}
+                    <li class="nav-item">
+                        {% url 'exim:akd_application_list' as nav_url %}
+                        <a href="{{ nav_url }}" class="nav-link {% if request.path == nav_url %} active {% endif %}">
+                            <i class="nav-icon fas fa-file" style="color: yellow;"></i>&nbsp&nbsp
+                            <p>
+                                Заявка(АКД)
+                                {% active_akd_applicants_count request=request as notification_count %}
+                                {% if notification_count %}
+                                    <span class="right badge badge-danger"> {{ notification_count }}</span>
+                                {% endif %}
+                            </p>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if perms.exim.add_point_akd or perms.exim.add_point_transit %}
+                    <li class="nav-item">
+                        {% url 'exim:list_shipment' as nav_url %}
+                        <a href="{{ nav_url }}" class="nav-link {% if request.path == nav_url %} active {% endif %}">
+                            <i class="nav-icon fas fa-bell text-yellow" style="color: yellow;"></i>&nbsp&nbsp
+                            <p>
+                                Уведомление
+                                {% pending_shipments_count request=request as notification_count %}
+                                {% if notification_count %}
+                                <span class="right badge badge-danger"> {{ notification_count }}</span>
+                                {% endif %}
+                            </p>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if perms.exim.add_region_fss %}
+                    <li class="nav-item">
+                        {% url 'exim:export_fss_application_list' as nav_url %}
+                        <a href="{{ nav_url }}" class="nav-link {% if request.path == nav_url %} active {% endif %}">
+                            <i class="nav-icon fas fa-file" style="color: yellow;"></i>&nbsp&nbsp
+                            <p>
+                                Заявка(ФСС)
+                                {% active_export_fss_applicants_count request=request as notification_count %}
+                                {% if notification_count %}
+                                    <span class="right badge badge-danger"> {{ notification_count }}</span>
+                                {% endif %}
+                            </p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        {% url 'exim:received_export_fss_application_list' as nav_url %}
+                        <a href="{{ nav_url }}" class="nav-link {% if request.path == nav_url %} active {% endif %}">
+                            <i class="nav-icon fas fa-file" style="color: yellow;"></i>&nbsp&nbsp
+                            <p>
+                                Распределения(ФСС)
+                                {% received_export_fss_applicants_count request=request as notification_count %}
+                                {% if notification_count %}
+                                    <span class="right badge badge-danger"> {{ notification_count }}</span>
+                                {% endif %}
+                            </p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        {% url 'exim:list_unapproved_export_fss' as nav_url %}
+                        <a href="{{ nav_url }}" class="nav-link {% if request.path == nav_url %} active {% endif %}">
+                            <i class="nav-icon fas fa-file" style="color: yellow;"></i>&nbsp&nbsp
+                            <p>
+                                Рассмотрение(ФСС)
+                                {% unapproved_export_fsses_count request=request as notification_count %}
+                                {% if notification_count %}
+                                    <span class="right badge badge-danger"> {{ notification_count }}</span>
+                                {% endif %}
+                            </p>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if perms.exim.can_approve_local_fss_application %}
+                    <li class="nav-item">
+                        {% url 'exim:local_fss_application_list' as nav_url %}
+                        <a href="{{ nav_url }}" class="nav-link {% if request.path == nav_url %} active {% endif %}">
+                            <i class="nav-icon fas fa-file" style="color: yellow;"></i>&nbsp&nbsp
+                            <p>
+                                Распр.(Вн_ФСС)
+                                {% unreceived_local_fss_applicants_count request=request as notification_count %}
+                                {% if notification_count %}
+                                    <span class="right badge badge-danger"> {{ notification_count }}</span>
+                                {% endif %}
+                            </p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        {% url 'exim:received_local_fss_application_list' as nav_url %}
+                        <a href="{{ nav_url }}" class="nav-link {% if request.path == nav_url %} active {% endif %}">
+                            <i class="nav-icon fas fa-file" style="color: yellow;"></i>&nbsp&nbsp
+                            <p>
+                                Рассмот.(Вн_ФСС)
+                                {% received_local_fss_applicants_count request=request as notification_count %}
+                                {% if notification_count %}
+                                    <span class="right badge badge-danger"> {{ notification_count }}</span>
+                                {% endif %}
+                            </p>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if perms.exim.list_republic_given_blanks or perms.exim.list_region_given_blanks or perms.exim.add_local_fss%}
+                    <li class="nav-item">
+                        {% url 'exim:given_local_fss_list' as nav_url %}
+                        <a href="{{ nav_url }}" class="nav-link {% if request.path == nav_url %} active {% endif %}">
+                            <img src="{% static 'dist/img/fss_ichki_2.png' %}" width="30px"> &nbsp
+                            <p>
+                                ФСС ички
+                            </p>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if perms.exim.list_republic_local_fss or perms.exim.list_region_local_fss or perms.exim.list_local_fss %}
+                    <li class="nav-item">
+                        {% url 'exim:local_fss_list' as nav_url %}
+                        <a href="{{ nav_url }}" class="nav-link {% if request.path == nav_url %} active {% endif %}">
+                            <img src="{% static 'dist/img/fss_ichki_1.png' %}" width="27px"> &nbsp&nbsp
+                            <p>
+                                ФСС ички
+                            </p>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if perms.lab.list_import_protocol_conclusion %}
+                    <li class="nav-item">
+                        {% url 'lab:unreceived_expert_conclusion_list' as nav_url %}
+                        <a href="{{ nav_url }}" class="nav-link {% if request.path == nav_url %} active {% endif %}">
+                            <i class="nav-icon fas fa-bell text-yellow" style="color: yellow;"></i>&nbsp
+                            <p>
+                                Хабарнома
+                                {% unreceived_import_protocol_conclusions request=request as notification_count %}
+                                {% if notification_count %}
+                                <span class="right badge badge-danger"> {{ notification_count }}</span>
+                                {% endif %}
+                            </p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        {% url 'lab:incomplete_expert_conclusion_list' as nav_url %}
+                        <a href="{{ nav_url }}" class="nav-link {% if request.path == nav_url %} active {% endif %}">
+                            <i class="nav-icon fas fa-recycle text-yellow" style="color: yellow;"></i>&nbsp
+                            <p>
+                                Якунланмаганлар
+                                {% incomplete_import_protocol_conclusions request=request as notification_count %}
+                                {% if notification_count %}
+                                <span class="right badge badge-danger"> {{ notification_count }}</span>
+                                {% endif %}
+                            </p>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if perms.lab.list_republic_import_shortcut or perms.lab.list_import_protocol_conclusion %}
+                    <li class="nav-item">
+                        {% url 'lab:expert_conclusion_list' as nav_url %}
+                        <a href="{{ nav_url }}" class="nav-link {% if request.path == nav_url %} active {% endif %}">
+                            <i class="fas fa-file-powerpoint fa-lg" style="color: yellow;"></i> &nbsp&nbsp&nbsp
+                            <p>
+                                Экспертлар хулосаси
+                            </p>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if perms.lab.list_republic_import_shortcut %}
+                    <li class="nav-item">
+                        {% url 'lab:list_import_notification' as nav_url %}
+                        <a href="{{ nav_url }}" class="nav-link {% if request.path == nav_url %} active {% endif %}">
+                            <i class="nav-icon fas fa-bell text-yellow" style="color: yellow;"></i>&nbsp&nbsp
+                            <p>
+                                Хабарнома
+                                {% pending_import_lab_shortcuts request=request as notification_count %}
+                                {% if notification_count %}
+                                <span class="right badge badge-danger"> {{ notification_count }}</span>
+                                {% endif %}
+                            </p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        {% url 'lab:list_import_shortcut' as nav_url %}
+                        <a href="{{ nav_url }}" class="nav-link {% if request.path == nav_url %} active {% endif %}">
+                            <i class="fas fa-file-powerpoint fa-lg" style="color: yellow;"></i> &nbsp&nbsp&nbsp
+                            <p>
+                                Ёрлиқ(ИМП)
+                            </p>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if perms.lab.list_republic_import_protocol %}
+                    <li class="nav-item">
+                        {% url 'lab:list_import_protocol' as nav_url %}
+                        <a href="{{ nav_url }}" class="nav-link {% if request.path == nav_url %} active {% endif %}">
+                            <i class="fas fa-file-powerpoint fa-lg" style="color: yellow;"></i> &nbsp&nbsp&nbsp
+                            <p>
+                                БАЁННОМА(ИМП)
+                            </p>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if perms.ppp.list_ppp_registration_protocols %}
+                    <li class="nav-item">
+                        {% url 'ppp:ppp_registration_protocols_list' as nav_url %}
+                        <a href="{{ nav_url }}" class="nav-link {% if request.path == nav_url %} active {% endif %}">
+                            <img src="{% static 'dist/img/certificate.png' %}" width="25px">&nbsp
+                            <p>
+                                Свидетельства
+                            </p>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if perms.ppp.add_ppp_registration_protocols %}
+                    <li class="nav-item">
+                        {% url 'ppp:saved_ppp_registration_protocols_list' as nav_url %}
+                        <a href="{{ nav_url }}" class="nav-link {% if request.path == nav_url %} active {% endif %}">
+                            <img src="{% static 'dist/img/certificate.png' %}" width="25px">&nbsp
+                            <p>
+                                Рассмотрение
+                                {% saved_ppp_registration_protocols_count request=request as notification_count %}
+                                {% if notification_count %}
+                                <span class="right badge badge-danger"> {{ notification_count }}</span>
+                                {% endif %}
+                            </p>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if perms.ppp.approve_ppp_registration_protocols or exim.add_ppp_registration_protocols %}
+                    <li class="nav-item">
+                        {% url 'ppp:pending_ppp_registration_protocols_list' as nav_url %}
+                        <a href="{{ nav_url }}" class="nav-link {% if request.path == nav_url %} active {% endif %}">
+                            <img src="{% static 'dist/img/certificate.png' %}" width="25px">&nbsp
+                            <p>
+                                Неутвержденные
+                                {% pending_ppp_registration_protocols_count request=request as notification_count %}
+                                {% if notification_count %}
+                                <span class="right badge badge-danger"> {{ notification_count }}</span>
+                                {% endif %}
+                            </p>
+                        </a>
+                    </li>
+                    {% endif %}
+                    <li class="nav-item">
+                        {% url 'list_balance' as nav_url %}
+                        <a href="{{ nav_url }}" class="nav-link {% if request.path == nav_url %} active {% endif %}">
+                            <p>
+                                <strong><span style="font-size:20px;color:yellow;">$</span></strong>&nbsp&nbsp&nbsp&nbsp Баланс
+                            </p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        {% url 'exim:hs_code_list' as nav_url %}
+                        <a href="{{ nav_url }}" class="nav-link {% if request.path == nav_url %} active {% endif %}">
+                            <i class="nav-icon fas fa-list text-yellow" style="color: yellow;"></i>&nbsp&nbsp
+                            <p>
+                                ТН ВЭД
+                            </p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        {% url 'exim:list_pest' as nav_url %}
+                        <a href="{{ nav_url }}" class="nav-link {% if request.path == nav_url %} active {% endif %}">
+                            <i class="nav-icon fas fa-leaf text-yellow" style="color: yellow;"></i>&nbsp&nbsp
+                            <p>
+                                Вредители
+                            </p>
+                        </a>
+                    </li>
+                    {% if perms.administration.can_register_region_user or perms.administration.can_approve_registered_user %}
+                    <li class="nav-item">
+                        {% url 'users_list' as nav_url %}
+                        <a href="{{ nav_url }}" class="nav-link {% if request.path == nav_url %} active {% endif %}">
+                            <i class="nav-icon fas fa-users text-yellow"></i>&nbsp&nbsp
+                            <p>
+                                Пользователи
+                                {% users_on_process_count request=request as users_on_process %}
+                                {% if users_on_process %}
+                                    <span class="right badge badge-danger"> {{ users_on_process }}</span>
+                                {% endif %}
+                            </p>
+                        </a>
+                    </li>
+                    {% endif %}
+                    <li class="nav-item">
+                        {% url 'list_inbox_message' as nav_url %}
+                        <a href="{{ nav_url }}" class="nav-link {% if request.path == nav_url %} active {% endif %}">
+                            <i class="nav-icon fas fa-envelope text-yellow"></i>&nbsp&nbsp
+                            <p>
+                                Входящие
+                                {% unread_messages_count request=request as unread_messages %}
+                                {% if unread_messages %}
+                                    <span class="right badge badge-danger"> {{ unread_messages }}</span>
+                                {% endif %}
+                            </p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        {% url 'list_sent_message' as nav_url %}
+                        <a href="{{ nav_url }}" class="nav-link {% if request.path == nav_url %} active {% endif %}">
+                            <i class="nav-icon fas fa-reply text-yellow"></i>&nbsp&nbsp
+                            <p>
+                                Отправленные
+                            </p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        {% url 'administration:user_settings' as nav_url %}
+                        <a href="{{ nav_url }}" class="nav-link {% if request.path == nav_url %} active {% endif %}">
+                            <i class="nav-icon fas fa-cog" style="color: red;"></i>&nbsp&nbsp
+                            <p>
+                                Настройки
+                            </p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'administration:logout' %}" class="nav-link">
+                            <i class="nav-icon fas fa-sign-out-alt" style="color: red;"></i>&nbsp&nbsp
+                            <p>
+                                Выйти
+                            </p>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <!-- /.sidebar-menu -->
+        </div>
+        <!-- /.sidebar -->
+    </aside>
+
+    <!-- Content Wrapper. Contains page content -->
+    <div class="content-wrapper">
+        <!-- Content Header (Page header) -->
+        <div class="content-header">
+            <div class="container-fluid">
+                <!-- for margin-top between table and header-->
+            </div><!-- /.container-fluid -->
+        </div>
+        <!-- /.content-header -->
+
+        <!-- Main content -->
+        <section class="content">
+            <div class="container-fluid">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                    {{ message|safe }}
+                </div>
+                {% endfor %}
+                {% block body %}
+                {% endblock %}
+            </div><!-- /.container-fluid -->
+        </section>
+        <!-- /.content -->
+    </div>
+    <!-- /.content-wrapper -->
+    <footer class="main-footer">
+        <strong>Copyright &copy; 2014-2019 <a href="http://adminlte.io">AdminLTE.io</a>.</strong>
+        All rights reserved.
+        <div class="float-right d-none d-sm-inline-block">
+            <b>Version</b> 3.0.1
+        </div>
+    </footer>
+
+    <!-- Control Sidebar -->
+    <aside class="control-sidebar control-sidebar-dark">
+        <!-- Control sidebar content goes here -->
+    </aside>
+    <!-- /.control-sidebar -->
+</div>
+<!-- ./wrapper -->
+<!-- jQuery UI 1.11.4 -->
+<script src="{% static 'plugins/jquery-ui/jquery-ui.min.js' %}"></script>
+<!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
+<script>
+  $.widget.bridge('uibutton', $.ui.button)
+
+
+
+</script>
+<!-- Bootstrap 4 -->
+<script src="{% static 'plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+<!-- jQuery Knob Chart -->
+<script src="{% static 'plugins/jquery-knob/jquery.knob.min.js' %}"></script>
+<!-- daterangepicker -->
+<script src="{% static 'plugins/moment/moment.min.js' %}"></script>
+<!-- Tempusdominus Bootstrap 4 -->
+<script src="{% static 'plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js' %}"></script>
+<!-- DataTables -->
+<script src="{% static 'plugins/datatables/jquery.dataTables.js' %}"></script>
+<script src="{% static 'plugins/datatables-bs4/js/dataTables.bootstrap4.js' %}"></script>
+<!-- AdminLTE App -->
+<script src="{% static 'dist/js/adminlte.min.js' %}"></script>
+<script src="{% static 'dist/js/dynamic_form.js' %}"></script>
+<script src="{% static 'plugins/select2/js/select2.full.min.js' %}"></script>
+
+<script src="{% static 'plugins/bootstrap-select/bootstrap-select.js' %}"></script>
+<script src="{% static 'plugins/selectable/js/ajax-bootstrap-select.js' %}"></script>
+<!-- page script -->
+<script>
+    $(function () {
+        $("#example1").DataTable();
+        $('#example2').DataTable({
+            "paging": true,
+            "lengthChange": false,
+            "searching": false,
+            "ordering": true,
+            "info": true,
+            "autoWidth": false,
+        });
+    });
+</script>
+{% block footer %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,211 @@
+{% extends 'general/base.html' %}
+{% load staticfiles %}
+{% block body %}
+{% load base %}
+{% user_groups request.user as user_groups %}
+<script type="text/javascript">
+window.onload = function () {
+
+var chart = new CanvasJS.Chart("chartContainer", {
+	theme: "light2",
+	animationEnabled: true, // change to true
+	title:{
+		text: "Оказанные услуги по фумигации в {{chosen_region.name_ru}}"
+	},
+	data: [
+	{
+		// Change type to "bar", "area", "spline", "pie",etc.
+		type: "column",
+		dataPoints: [
+		    {% for key, value in bar_chart_data.items %}
+			{ label: "{{key}}",  y: {{value}}  },
+			{% endfor %}
+		]
+	}
+	]
+});
+chart.render();
+
+}
+</script>
+<div class="row">
+    <div class="col-md-12">
+        <div class="box box-info">
+            <form class="form-horizontal" action="{% url 'fumigation:graphical_monitoring' %}" method="get">
+                {% csrf_token %}
+                <div class="row" class="box-body">
+                    <div class="col-lg-3 col-md-12 col-sm-12">
+                        <div class="form-group">
+                            <input type="date" name="beginning_of_interval" min="2020-08-01" class="form-control" required  value="{{beginning_of_interval}}">
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-12 col-sm-12">
+                        <div class="form-group">
+                            <input type="date" name="end_of_interval" class="form-control" required value="{{end_of_interval}}">
+                        </div>
+                    </div>
+                    <div class="form-group col-lg-4 col-md-12 col-sm-12">
+                        <select class="form-control" name="region_pk" required>
+                            {% if 'Republic managers' in user_groups or 'Republic managers' in user_groups %}
+                            <option value="15">Все</option>
+                            {% for region in regions %}
+                            <option value="{{region.pk}}">{{region.name_ru}}</option>
+                            {% endfor %}
+                            {% else %}
+                            <option value="{{request.user.point.region.pk}}">{{request.user.point.region.name_ru}}</option>
+                            {% endif %}
+                        </select>
+                    </div>
+                    <div class="col-lg-2">
+                        <div class="row">
+                            <div class="col-lg-2">
+                            </div>
+                            <div class="col-lg-10">
+                                <button type="submit" class="btn btn-info form-control">
+                                    <i class="fas fa-filter"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+<div class="row">
+        <div class="col-lg-3 col-xs-6">
+          <!-- small box -->
+          <div class="small-box bg-aqua">
+            <div class="inner">
+              <h3>{{number_of_certificates_of_disinfestation}}</h3>
+              <p>Кол-во АКТ ОБЕЗЗАРАЖИВАНИЯ</p>
+            </div>
+          </div>
+        </div>
+        <!-- ./col -->
+        <div class="col-lg-3 col-xs-6">
+          <!-- small box -->
+          <div class="small-box bg-green">
+            <div class="inner">
+              <h3>{{certificates_of_disinfestation_in_m3}}</h3>
+              <p>Полный объем для м3</p>
+            </div>
+          </div>
+        </div>
+        <!-- ./col -->
+        <div class="col-lg-3 col-xs-6">
+          <!-- small box -->
+          <div class="small-box bg-yellow">
+            <div class="inner">
+              <h3>{{certificates_of_disinfestation_in_m2}}</h3>
+              <p>Полный объем для м2</p>
+            </div>
+          </div>
+        </div>
+        <!-- ./col -->
+        <div class="col-lg-3 col-xs-6">
+          <!-- small box -->
+          <div class="small-box bg-red">
+            <div class="inner">
+              <h3>{{total_amount_of_certificates_of_disinfestation}}</h3>
+              <p>Общая сумма</p>
+            </div>
+          </div>
+        </div>
+        <!-- ./col -->
+      </div>
+<div class="row">
+    <div class="col-12">
+        <div id="chartContainer" style="height: 370px; width: 100%;"></div>
+    </div>
+</div>
+<br>
+{% if show_fumigators == 'true' %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+<!--            <div class="card-header">-->
+<!--                <h3 class="card-title">Уведомление</h3>-->
+<!--            </div>-->
+            <!-- /.card-header -->
+            <div class="card-body table-responsive">
+                <div id="example1_wrapper" class="dataTables_wrapper dt-bootstrap4">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <table id="example1" class="table table-bordered table-striped dataTable" role="grid"
+                                   aria-describedby="example1_info" style="margin:10px;">
+                                <thead>
+                                <tr role="row">
+                                    <th class="sorting_asc" tabindex="0" aria-controls="example1" rowspan="1"
+                                        colspan="1" aria-sort="ascending"
+                                        aria-label="Rendering engine: activate to sort column descending">№
+                                    </th>
+                                    <th class="sorting_asc" tabindex="0" aria-controls="example1" rowspan="1"
+                                        colspan="1" aria-sort="ascending"
+                                        aria-label="Rendering engine: activate to sort column descending">Инспекция
+                                    </th>
+                                    <th class="sorting_asc" tabindex="0" aria-controls="example1" rowspan="1"
+                                        colspan="1" aria-sort="ascending"
+                                        aria-label="Rendering engine: activate to sort column descending">Фумигатор Ф.И.О
+                                    </th>
+                                    <th class="sorting_asc" tabindex="0" aria-controls="example1" rowspan="1"
+                                        colspan="1" aria-sort="ascending"
+                                        aria-label="Rendering engine: activate to sort column descending">Кол-во актов
+                                    </th>
+                                    <th class="sorting_asc" tabindex="0" aria-controls="example1" rowspan="1"
+                                        colspan="1" aria-sort="ascending"
+                                        aria-label="Rendering engine: activate to sort column descending">Общая сумма
+                                    </th>
+                                    <th class="sorting_asc" tabindex="0" aria-controls="example1" rowspan="1"
+                                        colspan="1" aria-sort="ascending"
+                                        aria-label="Rendering engine: activate to sort column descending">м3
+                                    </th>
+                                    <th class="sorting_asc" tabindex="0" aria-controls="example1" rowspan="1"
+                                        colspan="1" aria-sort="ascending"
+                                        aria-label="Rendering engine: activate to sort column descending">м2
+                                    </th>
+                                    <th class="sorting_asc" tabindex="0" aria-controls="example1" rowspan="1"
+                                        colspan="1" aria-sort="ascending"
+                                        aria-label="Rendering engine: activate to sort column descending">м3 и м2
+                                    </th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for fumigator in fumigators_list %}
+                                <tr role="row" class="odd">
+                                    <td class="sorting_1">{{forloop.counter}}</td>
+                                    <td class="sorting_1">{{fumigator.inspection}}</td>
+                                    <td class="sorting_1">{{fumigator.fumigator}}</td>
+                                    <td class="sorting_1">{{fumigator.number_of_certificates_of_disinfestation}}</td>
+                                    <td class="sorting_1">{{fumigator.total_amount}}</td>
+                                    <td class="sorting_1">{{fumigator.volume}}</td>
+                                    <td class="sorting_1">{{fumigator.area}}</td>
+                                    <td class="sorting_1">{{fumigator.volume_and_area}}</td>
+                                </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- /.card-body -->
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="row">
+    <div class="col-12">
+        <!-- small box -->
+        <div class="small-box bg-warning">
+            <div class="inner">
+                <h3>Фумигаторы не найдены</h3>
+                <p>Пожалуйста, отфильтруйте, чтобы увидеть результаты фумигаторов, нажав кнопку <<Фильтр>> в правом верхнем углу.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+<script src="https://canvasjs.com/assets/script/canvasjs.min.js">
+{% endblock %}

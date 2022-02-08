@@ -1,0 +1,292 @@
+{% extends 'general/base.html' %}
+{% load staticfiles %}
+{% block body %}
+<style>
+    .nav-link.active{
+        border-color: #dee2e6 #dee2e6 #fff;
+    }
+</style>
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title" align="center" style="margin-right: 20%; margin-left: 20%">
+                    <strong>
+                        ЎСИМЛИКЛАРНИ ҲИМОЯ ҚИЛИШНИНГ КИМЁВИЙ ВА БИОЛОГИК ВОСИТАЛАРИ ҲАМДА МИНЕРАЛ ВА МИКРОБИОЛОГИК ЎҒИТЛАРНИ РЎЙХАТГА ОЛИНГАНЛИК ТЎҒРИСИДА ГУВОҲНОМА
+                    </strong>
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card card-default">
+                            <!-- fss_form start -->
+                            <form method="post" onsubmit="disable_form_after_submitted()" role="form">
+                                {% csrf_token %}
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-lg-2 col-md-2 col-sm-12">
+                                            <div class="input-group">
+                                                <div class="input-group-append">
+                                                    <a class="btn btn-default">Сериа рақами<span style="color:red;">*</span></a>
+                                                </div>
+                                                <input class="form-control float-right" maxlength="1" name="serial_number" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-3 col-md-2 col-sm-12">
+                                            <div class="input-group">
+                                                <div class="input-group-append">
+                                                    <a class="btn btn-default">Давлат<span style="color:red;">*</span></a>
+                                                </div>
+                                                <select class="form-control float-right" name="country_id" required>
+                                                    <option value=""></option>
+                                                    {% for country in countries %}
+                                                        <option value="{{country.pk}}">{{country.name_ru}}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <br>
+                                        <br>
+                                        <div class="col-lg-7 col-md-6 col-sm-12">
+                                            <div class="input-group">
+                                                <div class="input-group-append">
+                                                    <a class="btn btn-default">Ташкилот номи<span style="color:red;">*</span></a>
+                                                </div>
+                                                <input class="form-control float-right" name="applicant_name"
+                                                       maxlength="150" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-2 col-md-3 col-sm-12">
+                                            <div class="input-group">
+                                                <div class="input-group-append">
+                                                    <a class="btn btn-default">СТИР</a>
+                                                </div>
+                                                <input type="number" min="100000000" max="999999999" id="applicant_tin"
+                                                       class="form-control float-right" name="applicant_tin">
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-3 col-md-4 col-sm-12">
+                                            <div class="input-group">
+                                                <div class="input-group-append">
+                                                    <a class="btn btn-default">Телефон рақами: +998</a>
+                                                </div>
+                                                <input type="number" min="100000000" max="999999999" placeholder="991234567"
+                                                       class="form-control float-right" name="applicant_phone">
+                                            </div>
+                                        </div>
+                                        <div class="col-3">
+                                            <div class="input-group">
+                                                <div class="input-group-append">
+                                                    <a class="btn btn-default">Пртокол рақами<span style="color:red;">*</span></a>
+                                                </div>
+                                                <input class="form-control float-right" name="protocol_number" maxlength="5">
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="input-group">
+                                                <div class="input-group-append">
+                                                    <a class="btn btn-default">Пртокол санаси<span style="color:red;">*</span></a>
+                                                </div>
+                                                <input type="date" class="form-control float-right" name="protocol_given_date" required>
+                                            </div>
+                                        </div>
+                                        <br>
+                                        <br>
+                                        <br>
+                                        <div class="col-4">
+                                            <div class="input-group">
+                                                <div class="input-group-append">
+                                                    <a class="btn btn-default">Савдо номи<span style="color:red;">*</span></a>
+                                                </div>
+                                                <input class="form-control float-right" name="biocide_trade_name" maxlength="150" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="input-group">
+                                                <div class="input-group-append">
+                                                    <a class="btn btn-default">Препарат шакли<span style="color:red;">*</span></a>
+                                                </div>
+                                                <select class="form-control float-right" name="biocide_id" required>
+                                                    <option value=""></option>
+                                                    {% for biocide in biocides %}
+                                                        <option value="{{biocide.pk}}">{{biocide.code}} - {{biocide.name_uz}}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="input-group">
+                                                <div class="input-group-append">
+                                                    <a class="btn btn-default">Концентрацияси<span style="color:red;">*</span></a>
+                                                </div>
+                                                <input class="form-control float-right" name="concentration" maxlength="256" required>
+                                            </div>
+                                        </div>
+                                        <br>
+                                        <br>
+                                        <div class="col-8">
+                                            <div class="input-group">
+                                                <div class="input-group-append">
+                                                    <a class="btn btn-default">Таъсир этувчи модда<span style="color:red;">*</span></a>
+                                                </div>
+                                                <input class="form-control float-right" name="irritant_substance" maxlength="256" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="input-group">
+                                                <div class="input-group-append">
+                                                    <a class="btn btn-default">Амал қилиш муддати<span style="color:red;">*</span></a>
+                                                </div>
+                                                <input type="date" id="expire_date" class="form-control float-right" name="expire_date" required>
+                                            </div>
+                                        </div>
+                                        <br>
+                                    </div>
+                                </div>
+                                <div class="card-header with-border">
+                                    <h3 class="card-title"><strong>Қўллаш доираси</strong></h3>
+                                </div>
+                                <div class="card-body">
+                                    <div id="scopes">
+                                        <div class="form-row item form-element"
+                                             style="margin-top:15px; margin-bottom:15px;">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label><span style="color:red;">*</span>Препаратдан фойдаланиладиган экин тури:</label>
+                                                    <div class="row">
+                                                        <div class="col-6">
+                                                            <input type="text" maxlength="100" class="form-control" name="plant_type_uz[]" required placeholder="UZ">
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <input type="text" maxlength="100" class="form-control" name="plant_type_ru[]" required placeholder="RU">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label><span style="color:red;">*</span>Қайси зарарли организмга қарши ишлатилади:</label>
+                                                    <div class="row">
+                                                        <div class="col-6">
+                                                            <input type="text" maxlength="256" class="form-control" name="harmful_organisms_uz[]" required placeholder="UZ">
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <input type="text" maxlength="256" class="form-control" name="harmful_organisms_ru[]" required placeholder="RU">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <div class="form-group">
+                                                    <label><span style="color:red;">*</span>Сарф меъёри миқдори:</label>
+                                                    <input class="form-control" name="amount[]" required>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <div class="form-group">
+                                                    <label><span style="color:red;">*</span>Ўлчов бирлиги:</label>
+                                                    <select class="form-control" name="unit[]" required>
+                                                        <option value=""></option>
+                                                        {% for key, value in units %}
+                                                            <option value="{{key}}">{{value}}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-8">
+                                                <div class="form-group">
+                                                    <label><span style="color:red;">*</span>Ишлатиш муддати, усули ва тавсия этилган чекловлар:</label>
+                                                    <div class="row">
+                                                        <div class="col-6">
+                                                            <input type="text" maxlength="512" class="form-control" name="scope_uz[]" required placeholder="UZ">
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <input type="text" maxlength="512" class="form-control" name="scope_ru[]" required placeholder="RU">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-5">
+                                                <div class="form-group">
+                                                    <label>Ҳосилни йиғишга қанча қолганда ишлов тугалланади, кун:</label>
+                                                    <input maxlength="20" class="form-control" name="day[]">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-5">
+                                                <div class="form-group">
+                                                    <label>Бир мавсумда кўпи билан неча марта ишлатилади:</label>
+                                                    <input type="number" class="form-control" name="time[]">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-2" id="remover-first">
+                                                <label>&nbsp;</label>
+                                                <button class="btn btn-danger form-control delete_scopes">
+                                                    <i class="nav-icon fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- /.card-body -->
+                                <div class="card-footer">
+                                    <div class="col-4 float-left">
+                                        <button id="new_scopes" class="btn btn-info float-left">
+                                            Бошқа маҳсулот киритиш
+                                        </button>
+                                    </div>
+                                    <div class="col-4 float-right">
+                                        <button type="submit" id="submit_btn" class="btn btn-success float-right">Сохранить</button>
+                                    </div>
+                                </div>
+                            </form>
+                            <script type="text/javascript">
+                                $(document).ready(function(){
+                                    $("#btnSubmit").click(function(){
+                                        $("#btnSubmit").prop('disabled',true);
+                                    });
+                                });
+                            </script>
+                        </div>
+                    </div>
+                </div>
+                <!-- /.row -->
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function disable_form_after_submitted() {
+        var submit_btn = document.getElementById("submit_btn")
+        submit_btn.disabled = true;
+    }
+</script>
+{% endblock %}
+{% block footer %}
+<script>
+    $("#new_scopes").click(function (e) {
+    e.preventDefault()
+    var oldElement = $(".form-element").last()
+    var oldSelectable = oldElement.find('select.selectpicker').clone();
+    var newElement = oldElement.clone(true).find("input").val("").end();
+    newElement.appendTo("#scopes");
+    var deleteButton = newElement.find(".delete_scopes")
+    newElement.find('.bootstrap-select').remove();
+    deleteButton.click(function (e) {
+    e.preventDefault()
+    $(this).parent().parent().remove()
+    })
+})
+</script>
+<script>
+    let today = new Date().toISOString().slice(0, 10)
+    document.getElementById("expire_date").setAttribute("min", today);
+    $("#new_product_details").click(function (e) {
+      e.preventDefault()
+      var oldElement = $(".form-element").last()
+      var oldSelectable = oldElement.find('select').clone();
+      var newElement = oldElement.clone(true).find("input").val("").end();
+      newElement.appendTo("#product_details");
+    })
+</script>
+{% endblock %}

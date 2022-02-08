@@ -1,0 +1,10 @@
+@media only screen and (max-width: 600px) {
+   #others{
+        display:none
+   }
+}
+@media only screen and (min-width: 601px) {
+   #mobile{
+        display:none
+   }
+}

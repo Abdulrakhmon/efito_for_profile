@@ -1,0 +1,299 @@
+{% extends 'general/base.html' %}
+{% load staticfiles %}
+{% block body %}
+{% load base %}
+{% user_groups request.user as user_groups %}
+<script>
+var tableToExcel = (function() {
+  var uri = 'data:application/vnd.ms-excel;base64,'
+  var template = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><table>{table}</table></body></html>'
+  var base64 = function(s) { return window.btoa(unescape(encodeURIComponent(s))) }
+  var format = function(s, c) { return s.replace(/{(\w+)}/g, function(m, p) { return c[p]; }) }
+  return function(table, name) {
+    if (!table.nodeType) table = document.getElementById(table)
+    var ctx = {worksheet: name || 'Worksheet', table: table.innerHTML}
+    window.location.href = uri + base64(format(template, ctx))
+  }
+})()
+</script>
+{% if 'Region Manager Fumigator' in user_groups or 'Republic Manager Fumigator' in user_groups %}
+{% if unapproved_received_insecticide_exchanges %}
+<div class="alert alert-danger" >
+    <h5>
+        Ҳудудий инспексиялардан олинган ва ҳали тасдигини топмаган дорилар рўйхати.
+    </h5>
+    <ul>
+        {% for unapproved_received_insecticide_exchange in unapproved_received_insecticide_exchanges %}
+        <li>
+            <a target="_blank">
+                {{unapproved_received_insecticide_exchange.exchanged_date|date:'Y-m-d'}} чи куни {{unapproved_received_insecticide_exchange.sender_region.name_local}} сизга юборган {{unapproved_received_insecticide_exchange.amount}} г/мл {{unapproved_received_insecticide_exchange.insecticide.name}} ни <i class="fas fa-check"></i> тугмасини босиш орқали тасдиқлаб беришингиз керак.
+                <a href="{% url 'fumigation:approve_insecticide_exchange' pk=unapproved_received_insecticide_exchange.pk %}" onclick="return confirm('Уш бу малумотни тўгрилигини тасдиқлашга розимисиз?')">
+                    <i class="fas fa-check"></i>
+                </a>
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="box box-info">
+            <form class="form-horizontal" onsubmit="disable_form_after_submitted()" action="{% url 'fumigation:send_insecticide_exchange' %}" method="post">
+                {% csrf_token %}
+                <div class="row" class="box-body">
+                    <div class="form-group col-lg-3 col-md-12 col-sm-12">
+                        <select class="form-control" name="insecticide_pk" required>
+                            <option value="">Дорини танланг</option>
+                            {% for fumigation_insecticide in fumigation_insecticides %}
+                            <option value="{{fumigation_insecticide.pk}}">{{fumigation_insecticide.name}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-lg-3 col-md-12 col-sm-12">
+                        <div class="form-group">
+                            <input type="number" class="form-control" min="1" name="amount" placeholder="Дори миқдори(кг/л)" required>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-12 col-sm-12">
+                        <div class="form-group">
+                            <input type="date" name="exchanged_date"  min="2020-08-01" class="form-control" required placeholder="Берилган вақти">
+                        </div>
+                    </div>
+                    <div class="form-group col-lg-3 col-md-12 col-sm-12">
+                        <select class="form-control" name="receiver_region_pk" required>
+                            <option value=""></option>
+                            {% for inspection in inspections %}
+                            {% if inspection != request.user.point.region %}
+                            <option value="{{inspection.pk}}">{{inspection.name_ru}}</option>
+                            {% endif %}
+                            {% endfor %}
+                            {% if 'Republic Manager Fumigator' in user_groups %}
+                            <option value="15">Республика Узб</option>
+                            {% endif %}
+                        </select>
+                    </div>
+                    <div class="col-lg-10 col-md-12 col-sm-12">
+                        <div class="form-group">
+                            <input name="description" class="form-control" required placeholder="Юк ҳати(накладной) ҳақида малумот киритинг">
+                        </div>
+                    </div>
+                    <div class="col-lg-2">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <button type="submit" class="btn btn-info form-control">
+                                    Юбориш
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% if unapproved_sent_insecticide_exchanges %}
+<div class="alert alert-warning">
+    <h5>
+        Ҳудудий инспексияларга юборилган ва ҳали тасдигини топмаган дорилар рўйхати.
+    </h5>
+    <ul>
+        {% for unapproved_sent_insecticide_exchange in unapproved_sent_insecticide_exchanges %}
+        <li>
+            <a style="color:blue;" target="_blank">
+                {{unapproved_sent_insecticide_exchange.exchanged_date|date:'Y-m-d'}} чи куни {{unapproved_sent_insecticide_exchange.receiver_region.name_ru}}га юборилган {{unapproved_sent_insecticide_exchange.amount}} г/мл {{unapproved_sent_insecticide_exchange.insecticide.name}} ҳали ўз тасдигино топмади.
+                <a href="{% url 'fumigation:delete_insecticide_exchange' pk=unapproved_sent_insecticide_exchange.pk %}" onclick="return confirm('Вы хотите удалить это уведомление?')">
+                    <i class="fas fa-trash text-red"></i>
+                </a>
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+{% endif %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="box box-info">
+            <form class="form-horizontal" action="{% url 'fumigation:view_report_of_chemicals' %}" method="get">
+                {% csrf_token %}
+                <div class="row" class="box-body">
+                    <div class="col-lg-3 col-md-12 col-sm-12">
+                        <div class="form-group">
+                            <input type="date" name="beginning_of_interval"  min="2020-08-01" class="form-control" required   value="{{beginning_of_interval}}">
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-12 col-sm-12">
+                        <div class="form-group">
+                            <input type="date" name="end_of_interval" class="form-control" required value="{{end_of_interval}}">
+                        </div>
+                    </div>
+                    <div class="form-group col-lg-4 col-md-12 col-sm-12">
+                        <select class="form-control" name="region_pk" required>
+                            <option value="{{request.user.point.region.pk}}">{{request.user.point.region.name_ru}}</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-2">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <button type="submit" class="btn btn-info form-control">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <div class="col-lg-6">
+                                <button class="btn btn-success form-control" type="button" onclick="tableToExcel('testTable', 'report')">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% if last_month_insecticides_remainders %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <!-- /.card-header -->
+            <div class="card-body table-responsive">
+                <table class="table table-bordered" id="testTable" >
+                    <thead align="center" style="background-color:#119769;">
+                    <tr>
+                        <th style="border-bottom:none;">№</th>
+                        <th style="border-bottom:none;">Территориальные инспекции</th>
+                        <th colspan="5">Oстаток на {{remainder_month}}</th>
+                        <th colspan="5">Приход (кг/л)</th>
+                        <th colspan="5">Pасход (кг/л)</th>
+                        <th colspan="5">Oстаток на {{end_of_interval}}(кг/л)</th>
+                        <th style="border-bottom:none;">Кол-во</th>
+                    </tr>
+                    <tr>
+                        <th></th>
+                        <th>по Республике</th>
+                        {% for i in '1234'|make_list  %}
+                        {% for fumigation_formula in fumigation_formulae %}
+                        <th>
+                            {{ fumigation_formula.formula|safe }}
+                        </th>
+                        {% endfor %}
+                        {% endfor %}
+                        <th>актов</th>
+                    </tr>
+                    </thead>
+                    <tbody align="center">
+                    {% for report_table_data in report_table_data_list %}
+                        <tr {% if 1 == 2 %} style="background-color:yellow;" {% endif %}>
+                            <td>{{forloop.counter}}</td>
+                            <td>{{report_table_data.inspection_name}}</td>
+                            {% for key, value in report_table_data.remainder_at_beginning_of_month_dictionary.items %}
+                                <td>{% replace value '.' ',' %}</td>
+                            {% endfor %}
+                            {% for key, value in report_table_data.received_insecticides_dictionary.items %}
+                                <td>{% replace value '.' ',' %}</td>
+                            {% endfor %}
+                            {% for key, value in report_table_data.spent_insecticides_dictionary.items %}
+                                <td>{% replace value '.' ',' %}</td>
+                            {% endfor %}
+                            {% for key, value in report_table_data.remainder_at_end_of_month_dictionary.items %}
+                                <td>{% replace value '.' ',' %}</td>
+                            {% endfor %}
+                            <td>{{report_table_data.number_of_certificates_of_disinfestation}}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer clearfix">
+            </div>
+        </div>
+        <!-- /.card -->
+    </div>
+</div>
+<!-- /.row -->
+{% else %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header" id="others" style="background-color:red; color:white;">
+                <h3 class="card-title" align="center">Етакчи фумигаторлар диққатига: {{last_month}} ойидаги сарфланган дори миқдорларини тасдиқлаб беришингизни сўраймиз!</h3>
+            </div>
+            <!-- /.card-header -->
+            <div class="card-body table-responsive">
+                <table class="table table-bordered" id="testTable">
+                    <thead align="center" style="background-color:#119769;">
+                    <tr>
+                        <th style="border-bottom:none;">№</th>
+                        <th colspan="5">Oстаток на {{remainder_month}}</th>
+                        <th colspan="5">Приход (кг/л)</th>
+                        <th colspan="5">Pасход (кг/л)</th>
+                        <th colspan="5">Oстаток на {{end_of_interval}}(кг/л)</th>
+                        <th style="border-bottom:none;"></th>
+                    </tr>
+                    <tr>
+                        <th></th>
+                        {% for i in '1234'|make_list  %}
+                        {% for fumigation_formula in fumigation_formulae %}
+                        <th>
+                            {{ fumigation_formula.formula|safe }}
+                        </th>
+                        {% endfor %}
+                        {% endfor %}
+                        <th>Тасдиқлаш</th>
+                    </tr>
+                    </thead>
+                    <form action="{% url 'fumigation:approve_last_month_insecticides_remainders' %}" method="post">
+                    {% csrf_token %}
+                    <tbody align="center">
+                    {% for report_table_data in report_table_data_list %}
+                        <tr {% if 1 == 2 %} style="background-color:yellow;" {% endif %}>
+                            <td>{{forloop.counter}}</td>
+                            {% for key, value in report_table_data.remainder_at_beginning_of_month_dictionary.items %}
+                                <td>{% replace value '.' ',' %}</td>
+                            {% endfor %}
+                            {% for key, value in report_table_data.received_insecticides_dictionary.items %}
+                                <td>{% replace value '.' ',' %}</td>
+                            {% endfor %}
+                            {% for key, value in report_table_data.spent_insecticides_dictionary.items %}
+                                <td>{% replace value '.' ',' %}</td>
+                            {% endfor %}
+                            {% for key, value in report_table_data.remainder_at_end_of_month_dictionary.items %}
+                                <td>{% replace value '.' ',' %}</td>
+                            {% endfor %}
+                            <td>
+                                <button type="submit" id="submit_btn"> <i class="fas fa-check text-blue"></i> </button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                    </form>
+                </table>
+            </div>
+            <div class="card-footer clearfix">
+            </div>
+        </div>
+        <!-- /.card -->
+    </div>
+</div>
+{% endif %}
+{% if exchanged_insecticides %}
+<div class="alert alert-success" >
+    <ul>
+        {% for exchanged_insecticide in exchanged_insecticides %}
+        <li>
+            <a target="_blank">
+                {{exchanged_insecticide.exchanged_date|date:'Y-m-d'}} чи куни {{exchanged_insecticide.sender_region.name_local}} дан {{exchanged_insecticide.receiver_region.name_local}} га {{exchanged_insecticide.amount}} г/мл {{exchanged_insecticide.insecticide.name}} берилган.
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+<script>
+    function disable_form_after_submitted() {
+        var submit_btn = document.getElementById("submit_btn")
+        submit_btn.disabled = true;
+    }
+</script>
+{% endblock %}

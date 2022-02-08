@@ -1,0 +1,129 @@
+{% extends 'general/base.html' %}
+{% load staticfiles %}
+{% block body %}
+{% load base %}
+{% user_groups request.user as user_groups %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="box box-info">
+            <form class="form-horizontal" action="{% url 'fumigation:view_disinfected_objects_report' %}" method="get">
+                {% csrf_token %}
+                <div class="row" class="box-body">
+                    <div class="col-lg-3 col-md-12 col-sm-12">
+                        <div class="form-group">
+                            <input type="date" name="beginning_of_interval"  min="2020-08-01" class="form-control" required   value="{{beginning_of_interval}}">
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-12 col-sm-12">
+                        <div class="form-group">
+                            <input type="date" name="end_of_interval" class="form-control" required value="{{end_of_interval}}">
+                        </div>
+                    </div>
+                    <div class="form-group col-lg-4 col-md-12 col-sm-12">
+                        <select class="form-control" name="region_pk" required>
+                            {% if 'Republic managers' in user_groups %}
+                            <option value="{{chosen_region.pk}}" selected>{{chosen_region.name_ru}}</option>
+                            <option value="15">Все</option>
+                            {% for region in regions %}
+                            <option value="{{region.pk}}">{{region.name_ru}}</option>
+                            {% endfor %}
+                            {% else %}
+                            <option value="{{request.user.point.region.pk}}">{{request.user.point.region.name_ru}}
+                            </option>
+                            {% endif %}
+                        </select>
+                    </div>
+                    <div class="col-lg-2">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <button type="submit" class="btn btn-info form-control">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <div class="col-lg-6">
+                                <button class="btn btn-success form-control" type="submit" formaction="{% url 'fumigation:download_disinfected_objects_report' %}">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="row">
+    {% if chosen_region.pk == 15 %}
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header" id="others" style="background-color:#119769; color:white;">
+                <h3 class="card-title" align="center">Сравнительная таблица о выполненых работах по обеззараживанию c {{beginning_of_interval}} до {{end_of_interval}} </h3>
+            </div>
+            <!-- /.card-header -->
+            <div class="card-body table-responsive p-0" style="border-left: 2px solid #119769;">
+                <table class="table table-striped">
+                    <thead align="center" style="background-color:#119769; color:white;">
+                    <tr>
+                        <th>№</th>
+                        <th>Территориальные инспекции</th>
+                        <th>Обеззараженные объекты</th>
+                        <th>м3</th>
+                        <th>м2</th>
+                    </tr>
+                    </thead>
+                    <tbody align="center">
+                    {% for disinfected_object_data in disinfected_objects_data %}
+                        <tr {% if disinfected_object_data.number == '15' %} style="background-color:yellow;" {% endif %}>
+                            <td>{{disinfected_object_data.number}}</td>
+                            <td>{{disinfected_object_data.inspection}}</td>
+                            <td>{{disinfected_object_data.disinfected_object}}</td>
+                            <td>{{disinfected_object_data.m3}}</td>
+                            <td>{{disinfected_object_data.m2}}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer clearfix">
+            </div>
+        </div>
+        <!-- /.card -->
+    </div>
+    {% else %}
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header" id="others" style="background-color:#119769; color:white;">
+                <h3 class="card-title" align="center">Сравнительная таблица о выполненых работах по обеззараживанию c {{beginning_of_interval}} до {{end_of_interval}} </h3>
+            </div>
+            <!-- /.card-header -->
+            <div class="card-body table-responsive p-0" style="border-left: 2px solid #119769;">
+                <table class="table table-striped">
+                    <thead align="center" style="background-color:#119769; color:white;">
+                    <tr>
+                        <th>№</th>
+                        <th>Обеззараженные объекты</th>
+                        <th>м3</th>
+                        <th>м2</th>
+                    </tr>
+                    </thead>
+                    <tbody align="center">
+                    {% for disinfected_object_data in disinfected_objects_data %}
+                        <tr {% if disinfected_object_data.disinfected_object == 'Итого' %} style="background-color:yellow;" {% endif %}>
+                            <td>{{forloop.counter}}</td>
+                            <td>{{disinfected_object_data.disinfected_object}}</td>
+                            <td>{{disinfected_object_data.m3}}</td>
+                            <td>{{disinfected_object_data.m2}}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer clearfix">
+            </div>
+        </div>
+        <!-- /.card -->
+    </div>
+    {% endif %}
+</div>
+<!-- /.row -->
+{% endblock %}

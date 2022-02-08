@@ -1,0 +1,176 @@
+{% extends 'general/base.html' %}
+{% load staticfiles %}
+{% block body %}
+{% load base %}
+{% user_groups request.user as user_groups %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="box box-info">
+            <form class="form-horizontal" action="{% url 'fumigation:download_report_of_chambers' %}" method="get">
+                {% csrf_token %}
+                <div class="row" class="box-body">
+                    <div class="col-lg-3 col-md-12 col-sm-12">
+                        <div class="form-group">
+                            <input type="date" name="beginning_of_interval" min="2020-08-01" class="form-control" required  value="{{beginning_of_interval}}">
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-12 col-sm-12">
+                        <div class="form-group">
+                            <input type="date" name="end_of_interval" class="form-control" required value="{{end_of_interval}}">
+                        </div>
+                    </div>
+                    <div class="form-group col-lg-4 col-md-12 col-sm-12">
+                        <select class="form-control" name="region_pk" required>
+                            {% if 'Republic Manager Fumigator' in user_groups or 'Republic managers' in user_groups %}
+                            <option value="15">Все</option>
+                            {% for region in regions %}
+                            <option value="{{region.pk}}">{{region.name_ru}}</option>
+                            {% endfor %}
+                            {% else %}
+                            <option value="{{request.user.point.region.pk}}">{{request.user.point.region.name_ru}}</option>
+                            {% endif %}
+                        </select>
+                    </div>
+                    <div class="col-lg-2">
+                        <div class="row">
+                            <div class="col-lg-2">
+                            </div>
+                            <div class="col-lg-10">
+                                <button type="submit" class="btn btn-info form-control">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+<div class="row">
+    {% if fumigation_chambers %}
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title" ><strong>Фум. камеры</strong></h3>
+                    <style>
+                    .filter form {
+                        display: inline-block;
+                    }
+                    </style>
+                <div class="filter float-right">
+                    <form action="" method="get">
+                        <div class="input-group input-group-sm" style="width: 250px;">
+                            <input required name="number" class="form-control float-right"
+                                   placeholder="Введите номер">
+                            <div class="input-group-append">
+                                <button type="submit" class="btn btn-default"><i class="fas fa-search"></i></button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <!-- /.card-header -->
+            <div class="card-body table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr role="row">
+                            <th>№</th>
+                            <th>Фум. камера №</th>
+                            <th>Область</th>
+                            {% if is_republic_manager %}
+                            <th><i class="fas fa-edit text-blue"></i></th>
+                            <th><i class="fas fa-trash text-red"></i></th>
+                            {% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for fumigation_chamber in fumigation_chambers %}
+                        <tr>
+                            <td>{{ forloop.counter|add:fumigation_chambers.start_index|add:"-1" }}</td>
+                            <td>{{fumigation_chamber.number}}</td>
+                            <td>{{fumigation_chamber.region.name_ru}}</td>
+                            {% if is_republic_manager %}
+                            <td>
+                                <a href="" data-toggle="modal" style="color:blue;"
+                                   data-target="#fumigation_chamber{{ fumigation_chamber.pk }}_changed_region">
+                                    <i class="fas fa-edit text-blue"></i>
+                                </a>
+                            </td>
+                            <td>
+                                <a href="{% url 'fumigation:delete_fumigation_chamber' pk=fumigation_chamber.pk %}" onclick="return confirm('Вы уверены, что хотите удалить эту Фум. камеру?')">
+                                    <i class="fas fa-trash text-red"></i>
+                                </a>
+                            </td>
+                            {% endif %}
+                        </tr>
+                        <div class="modal fade" id="fumigation_chamber{{ fumigation_chamber.pk }}_changed_region">
+                         <div class="modal-dialog">
+                             <div class="modal-content">
+                                 <form action="{% url 'fumigation:change_fumigation_chamber_region' pk=fumigation_chamber.pk %}" method="post">
+                            {% csrf_token %}
+                            <div class="modal-header">
+                                <h4 class="box-title">Фум. камера № {{fumigation_chamber.number}}</h4>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label>Область:</label>
+                                            <select class="form-control" name="region_pk" required>
+                                                <option value="{{fumigation_chamber.region.pk}}">{{fumigation_chamber.region.name_ru}}</option>
+                                                {% for region in regions %}
+                                                <option value="{{region.pk}}">{{region.name_ru}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer justify-content-between">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">
+                                    Закрыть
+                                </button>
+                                <button type="submit" class="btn btn-danger">Сохранить</button>
+                            </div>
+                                </form>
+                             </div>
+                             <!-- /.modal-content -->
+                         </div>
+                             <!-- /.modal-dialog -->
+                        </div>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <!-- /.card-body -->
+            <div class="card-footer clearfix">
+                <span class="font-italic">Найдено {{total_num_of_apps}} записей</span>
+                <ul class="pull-right float-right">
+                <div class="input-group pull-right float-right">
+                    <div class="input-group-append">
+                        <a href="{% url_args 1 'page' request.GET.urlencode %}" class="btn btn-default text-blue">в начало </a>
+                        <a {% if fumigation_chambers.has_previous %} href="{% url_args fumigation_chambers.previous_page_number 'page' request.GET.urlencode %}" class="btn btn-default text-blue"{% else %} class="btn btn-default" {% endif %}>Предыдущий </a>
+                    </div>
+                    <select class="form-control" style="max-width:70px;" onchange="location = this.value;">
+                        {% for num_page in num_pages %}
+                            <option value="{% url_args num_page 'page' request.GET.urlencode %}" {% if num_page == page %} selected {% endif %}>{{ num_page }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="input-group-append">
+                        <a {% if fumigation_chambers.has_next %} href="{% url_args fumigation_chambers.next_page_number 'page' request.GET.urlencode %}" class="btn btn-default text-blue"{% else %} class="btn btn-default" {% endif %}> Следующий</a>
+                        <a href="{% url_args fumigation_chambers.paginator.num_pages 'page' request.GET.urlencode %}" class="btn btn-default text-blue"> Конец</a>
+                    </div>
+                </div>
+                </ul>
+            </div>
+        </div>
+        <!-- /.card -->
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

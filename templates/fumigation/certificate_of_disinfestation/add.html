@@ -1,0 +1,569 @@
+{% extends 'general/base.html' %}
+{% load general %}
+{% load staticfiles %}
+{% block body %}
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<style>
+    @keyframes example {
+  0%   {color: red;}
+  25%  {color: yellow;}
+  50%  {color: green;}
+  100%   {color: red;}
+}
+</style>
+<div class="row">
+    <div class="col-12">
+        <div class="invoice p-3 mb-3">
+            {% include "general/karantin.html" %}
+            <div class="row">
+                <div class="col-12" style="text-align: center;">
+                    <strong>АКТ ОБЕЗЗАРАЖИВАНИЯ - CERTIFICATE OF DISINFESTATION</strong>
+                    <br>
+                    <br>
+                    <p style="color: red; animation-name: example; animation-duration: 4s; animation-iteration-count: infinite;">
+                        <strong>
+                            Пастдаки формани тўлдиришдан олдин ***efito.uz*** меню қисмидан ***Баланс*** бўлимига ўтиб СТИР(ИНН) орқали хисобини текшириб кўринг.
+                        </strong>
+                    </p>
+                </div>
+            </div>
+            <br>
+            <br>
+            <!-- Table row -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card card-default">
+                        <form id="formABC" onsubmit="disable_form_after_submitted()" method="post">
+                            {% csrf_token %}
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            <label>Язык АФ АКТ</label>
+                                            <select class="form-control" name="language" required>
+                                                <option value="{{exist_certificate_of_disinfestation.language}}">{{exist_certificate_of_disinfestation.get_language_display}}</option>
+                                                {% for key, value in languages.items %}
+                                                    <option value="{{value}}">{{key}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-5">
+                                        <div class="form-group">
+                                            <label><span style="color:red;">*</span>Район</label>
+                                            <select class="form-control" name="district_pk" required>
+                                                <option value="{{exist_certificate_of_disinfestation.district.pk}}">{{exist_certificate_of_disinfestation.district.name_ru}}</option>
+                                                {% for district in districts %}
+                                                    <option value="{{district.pk}}">{{district.name_ru}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-5">
+                                        <div class="form-group">
+                                            <label><span style="color:red;">*</span>Обеззараженные объекты</label>
+                                            <select class="form-control" name="disinfected_object_pk" required>
+                                                <option value="{{exist_certificate_of_disinfestation.disinfected_object.pk}}">{{exist_certificate_of_disinfestation.disinfected_object.name}}</option>
+                                                {% for disinfected_object in disinfected_objects %}
+                                                    <option value="{{disinfected_object.pk}}">{{disinfected_object.name}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- /.row -->
+<!--                                <div class="row">-->
+                                    <div class="form-group">
+                                        <label>Настоящий акт о том, что фумигатором проведено обеззараживание</label>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <input class="form-control pull-right" placeholder="Mахсулот номини киритинг: Сухофрукты"
+                                                       value="{{exist_certificate_of_disinfestation.disinfected_product}}" name="disinfected_product" required>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <input type="number" step="any" class="form-control pull-right" placeholder="Mахсулот миқдорини киритинг: 1111"
+                                                       value="{{exist_certificate_of_disinfestation.disinfected_product_amount}}" name="disinfected_product_amount">
+                                            </div>
+                                            <div class="col-md-2">
+                                                <select class="form-control" name="disinfected_product_unit_pk">
+                                                    <option value="{{exist_certificate_of_disinfestation.disinfected_product_unit.pk}}">{{exist_certificate_of_disinfestation.disinfected_product_unit.name_ru}}</option>
+                                                    {% for unit in units %}
+                                                        <option value="{{unit.pk}}">{{unit.name_ru}}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+<!--                                </div>-->
+                                <!-- /.row -->
+                                <br>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label>Заказчик ИНН</label>
+                                            <input  type="number" max="999999999" min="100000000" class="form-control pull-right" name="organization_tin"
+                                                    value="{{exist_certificate_of_disinfestation.organization_tin}}" id="organization_tin" required>
+                                        </div>
+                                        <!-- /.form-group -->
+                                    </div>
+                                    <!-- /.col -->
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Заказчик наименование</label>
+                                            <input class="form-control pull-right" name="organization_name" id="organization_name" required
+                                                   value="{{exist_certificate_of_disinfestation.organization_name}}">
+                                        </div>
+                                        <!-- /.form-group -->
+                                    </div>
+                                    <!-- /.col -->
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label><span style="color:red;">*</span> Фаолият тури</label>
+                                            <select class="form-control" name="organization_activity_type_pk" required>
+                                                <option value="{{exist_certificate_of_disinfestation.organization_activity_type.pk}}">{{exist_certificate_of_disinfestation.organization_activity_type.name}}</option>
+                                                {% for organization_activity_type in organization_activity_types %}
+                                                    <option value="{{organization_activity_type.pk}}">{{organization_activity_type.name}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- /.row -->
+                                <br>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                        <label>Внутренний/Импорт/Экспорт :</label>
+                                        <br>
+                                        <label class="radio-inline">
+                                            <input type="radio" name="type" value="3" required> Внутренний
+                                        </label>
+                                        <label class="radio-inline">
+                                            <input type="radio" name="type" value="2" onclick="make_required_country()" required> Импорт
+                                        </label>
+                                        <label class="radio-inline">
+                                            <input type="radio" name="type" value="1" onclick="make_required_country()" required> Экспорт
+                                        </label>
+                                        </div>
+                                        <!-- /.form-group -->
+                                        <script>
+                                            function make_required_country() {
+                                                document.getElementById("country_id").required = true;
+                                            }
+                                        </script>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Страна отправитель/получатель</label>
+                                            <select class="form-control selectpicker" data-live-search="true" style="width: 100%;" name="country_pk" id="country_id">
+                                                <option value="{{exist_certificate_of_disinfestation.country.pk}}">{{exist_certificate_of_disinfestation.country.name_ru}}</option>
+                                                {% for country in countries %}
+                                                    <option value="{{country.pk}}">{{country.name_ru}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <!-- /.form-group -->
+                                    </div>
+                                </div>
+                                <!-- /.row -->
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label>Bид обеззараженного объекта</label>
+                                            <select class="form-control" style="width: 100%;" name="disinfected_building_type_pk" required>
+                                                <option value="{{exist_certificate_of_disinfestation.disinfected_building_type.pk}}">{{exist_certificate_of_disinfestation.disinfected_building_type.name_ru}}</option>
+                                                {% for disinfected_building_type in disinfected_building_types %}
+                                                    <option value="{{disinfected_building_type.pk}}">{{disinfected_building_type.name_ru}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <!-- /.form-group -->
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            <label>Hомер камеры</label>
+                                            <select class="form-control" style="width: 100%;" name="fumigation_chamber_pk">
+                                                <option vlaue=""></option>
+                                                {% for fumigation_chamber in fumigation_chambers %}
+                                                    <option value="{{fumigation_chamber.pk}}">{{fumigation_chamber.number}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <!-- /.form-group -->
+                                    </div>
+                                    <div class="col-md-4" id="vehicles_number">
+                                        <div class="form-group">
+                                            <label>Дополнительная информация</label>
+                                            <input class="form-control pull-right" name="disinfected_building_info">
+                                        </div>
+                                        <!-- /.form-group -->
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label>Объем обеззараженного объекта</label>
+                                            <input type="number" class="form-control pull-right" name="disinfected_building_volume" required
+                                                   value="{{exist_certificate_of_disinfestation.disinfected_building_volume}}" step="any">
+                                        </div>
+                                        <!-- /.form-group -->
+                                    </div>
+                                </div>
+                                <!-- /.row -->
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label>Обеззараживание проведено следующим методом</label>
+                                            <select class="form-control" style="width: 100%;" name="disinfestation_type" required>
+                                                <option value="{{exist_certificate_of_disinfestation.disinfestation_type}}">{{exist_certificate_of_disinfestation.get_disinfestation_type_display}}</option>
+                                                {% for key, value in disinfestation_types %}
+                                                <option value="{{key}}" {% if key == disinfestation_type %}selected{% endif %}>{{value}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <!-- /.form-group -->
+                                    </div>
+                                    <!-- /.col -->
+                                </div>
+                                <!-- /.row -->
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label>Декларация</label><br>
+                                                <select name="fumigation_declaration_pk" style="width: 100%;" class="form-control formula" required>
+                                                    <option value="">Выберите декларацию</option>
+                                                    {% for fumigation_declaration in fumigation_declarations %}
+                                                        <option value="{{fumigation_declaration.pk}}">{{fumigation_declaration}}</option>
+                                                    {% endfor %}
+                                                </select>
+                                        </div>
+                                        <!-- /.form-group -->
+                                    </div>
+                                </div>
+                                <!-- /.row -->
+                                {% if disinfestation_type == 3 %}
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Начало цикла</label><br>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <input type="date" class="form-control" name="beginning_of_cycle_date" required
+                                                           min="{{week_ago}}" max="{{in_three_days}}">
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <input type="time" class="form-control" name="beginning_of_cycle_time" required>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- /.form-group -->
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Начало термической обработки</label>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <input type="date" class="form-control" name="beginning_of_heat_treatment_date" required
+                                                           min="{{week_ago}}" max="{{in_three_days}}">
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <input type="time" class="form-control" name="beginning_of_heat_treatment_time" required>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- /.form-group -->
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Конец термической обработки</label><br>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <input type="date" class="form-control" name="ending_of_heat_treatment_date" required
+                                                           min="{{week_ago}}" max="{{in_three_days}}">
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <input type="time" class="form-control" name="ending_of_heat_treatment_time" required>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- /.form-group -->
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Конец цикла</label>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <input type="date" class="form-control" name="ending_of_cycle_date" required
+                                                           min="{{week_ago}}" max="{{in_three_days}}">
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <input type="time" class="form-control" name="ending_of_cycle_time" required>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- /.form-group -->
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="input-group">
+                                            <input class="form-control float-right" name="temperature_in_beginning_of_cycle" required placeholder="Начало цикла(Темпер.)">
+                                            <div class="input-group-append">
+                                                <a class="btn btn-default">&deg;C</a>
+                                            </div>
+                                        </div>
+                                        <!-- /.form-group -->
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="input-group">
+                                            <input class="form-control float-right" name="temperature_in_beginning_of_heat_treatment" required placeholder="Начало обработки(Темпер.)">
+                                            <div class="input-group-append">
+                                                <a class="btn btn-default">&deg;C</a>
+                                            </div>
+                                        </div>
+                                        <!-- /.form-group -->
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="input-group">
+                                            <input class="form-control float-right" name="wetness_in_beginning_of_cycle" required placeholder="Начало цикла(Влажность)">
+                                            <div class="input-group-append">
+                                                <a class="btn btn-default">%</a>
+                                            </div>
+                                        </div>
+                                        <!-- /.form-group -->
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="input-group">
+                                            <input class="form-control float-right" name="wetness_in_beginning_of_heat_treatment" required placeholder="Начало обработки(Влажность)">
+                                            <div class="input-group-append">
+                                                <a class="btn btn-default">%</a>
+                                            </div>
+                                        </div>
+                                        <!-- /.form-group -->
+                                    </div>
+                                </div>
+                                <br>
+                                <div class="row">
+                                    <div class="col-lg-3">
+                                        <div class="form-group">
+                                            <label>Фактическая длительность термической обработки</label>
+                                            <select class="form-control" style="width: 100%;" name="is_duration_in_established_standard" required>
+                                                <option value=""></option>
+                                                <option value="yes">Да</option>
+                                                <option value="no">Нет</option>
+                                            </select>
+                                        </div>
+                                        <!-- /.form-group -->
+                                    </div>
+                                    <!-- /.col -->
+                                    <div class="col-lg-3">
+                                        <div class="form-group">
+                                            <label>Фактическая температура термической обработки</label>
+                                            <select class="form-control" style="width: 100%;" name="is_temperature_in_established_standard" required>
+                                                <option value=""></option>
+                                                <option value="yes">Да</option>
+                                                <option value="no">Нет</option>
+                                            </select>
+                                        </div>
+                                        <!-- /.form-group -->
+                                    </div>
+                                    <!-- /.col -->
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label>В качестве биоиндикатора использован</label>
+                                            <select class="form-control" style="width: 100%;" name="bio_indicator" required>
+                                                <option value="Амбарные вредитель">Амбарные вредитель</option>
+                                            </select>
+                                        </div>
+                                        <!-- /.form-group -->
+                                    </div>
+                                    <!-- /.col -->
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label>Заключение о результатах обеззараживания</label>
+                                            <div class="input-group">
+                                                <input type="number" min="0" step="any" class="form-control float-right" placeholder="" value="100" name="disinfection_result" required>
+                                                <div class="input-group-append">
+                                                    <a class="btn btn-default">% гибель</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- /.form-group -->
+                                    </div>
+                                    <!-- /.col -->
+                                </div>
+                                <!-- /.row -->
+                                {% else %}
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label>Наименование инсектицида</label>
+                                            <select name="insecticide_pk" style="width: 100%;" class="form-control insecticide"  id="insecticide_pk"  required>
+                                                <option value="{{exist_certificate_of_disinfestation.insecticide.pk}}">{{exist_certificate_of_disinfestation.insecticide.name}}</option>
+                                                {% for fumigation_insecticide in fumigation_insecticides %}
+                                                    <option value="{{fumigation_insecticide.pk}}">{{fumigation_insecticide}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <!-- /.form-group -->
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label>Дозировка инсектицидов(гр/мл)</label>
+                                            <input type="number" min="0" step="any" class="form-control" placeholder="Введите в гр или мл" name="insecticide_dosage" required
+                                                   value="{{exist_certificate_of_disinfestation.insecticide_dosage}}" id="insecticide_dosage">
+                                        </div>
+                                        <!-- /.form-group -->
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label>Tемпература груза и помещения</label><br>
+                                            <div class="input-group">
+                                                <input class="form-control float-right" placeholder="" name="temperature" required>
+                                                <div class="input-group-append">
+                                                    <a class="btn btn-default">&deg;C</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- /.form-group -->
+                                    </div>
+                                </div>
+                                <!-- /.row -->
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Hачало обеззараживания</label><br>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <input type="date" class="form-control" name="beginning_of_disinfection_date" required
+                                                           min="{{week_ago}}" max="{{in_three_days}}">
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <input type="time" class="form-control" name="beginning_of_disinfection_time" required>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- /.form-group -->
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>3авершение обеззараживания</label>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <input type="date" class="form-control" name="ending_of_disinfection_date" required
+                                                           min="{{week_ago}}" max="{{in_three_days}}">
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <input type="time" class="form-control" name="ending_of_disinfection_time" required>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- /.form-group -->
+                                    </div>
+                                </div>
+                                <!-- /.row -->
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label>Время затраченное на дегазацию</label><br>
+                                            <div class="input-group">
+                                                <input type="number" min="0" class="form-control" placeholder="" name="degassing_time_amount" required>
+                                                <div class="input-group-append">
+                                                    <select class="btn btn-default" name="degassing_time_unit" required>
+                                                        <option value="">Мин/час</option>
+                                                        <option value="1">Минут</option>
+                                                        <option value="2">Час</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- /.form-group -->
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label>В качестве биоиндикатора использован</label>
+                                            <select class="form-control" style="width: 100%;" name="bio_indicator" required>
+                                                <option value="Амбарные вредитель">Амбарные вредитель</option>
+                                            </select>
+                                        </div>
+                                        <!-- /.form-group -->
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label>Заключение о результатах обеззараживания</label>
+                                            <div class="input-group">
+                                                <input type="number" min="0" step="any" class="form-control" placeholder="" value="100" name="disinfection_result" required>
+                                                <div class="input-group-append">
+                                                    <a class="btn btn-default">% гибель</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- /.form-group -->
+                                    </div>
+                                </div>
+                                <!-- /.row -->
+                                {% endif %}
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Гос. инспектор по карантину</label>
+                                            <select name="inspector_pk" style="width: 100%;" class="form-control selectpicker" data-live-search="true" required>
+                                                <option value="{{exist_certificate_of_disinfestation.inspector.pk}}">{{exist_certificate_of_disinfestation.inspector.name_ru}}</option>
+                                                {% for inspector in inspectors %}
+                                                    <option value="{{inspector.pk}}">{{inspector.name_ru}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <!-- /.form-group -->
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Заказчик</label>
+                                            <input class="form-control pull-right" name="customer" required
+                                                   value="{{exist_certificate_of_disinfestation.customer}}">
+                                        </div>
+                                        <!-- /.form-group -->
+                                    </div>
+                                </div>
+                                <!-- /.row -->
+                            </div>
+                            <!-- /.card-body -->
+                            <div class="card-footer">
+                                <button type="submit" id="submit_btn" class="btn btn-success float-right">Сохранить</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <!-- /.row -->
+        </div>
+    </div>
+</div>
+<script>
+    function disable_form_after_submitted() {
+        var submit_btn = document.getElementById("submit_btn")
+        submit_btn.disabled = true;
+    }
+    $(function () {
+        $("#organization_tin").autocomplete({
+            source: '{% url 'administration:check_organization_tin' %}',
+            minLength: 6
+        });
+        $("#organization_tin").focusout(function(){
+            var ch=$(this).val()
+            if(ch.length==9){
+                  $.get('{% url 'administration:organization_name' %}'+'?tin='+ch, function(res) {
+                    if(res.success){
+                        $("#organization_name").val(res.data)
+                    }else{$("#organization_name").val('')}
+                })
+            }
+        })
+    });
+    $('#insecticide_pk').change(function(){
+        if ($(this).val() == 10) {
+            $('#insecticide_dosage').val(3);
+        }
+    });
+</script>
+{% endblock %}

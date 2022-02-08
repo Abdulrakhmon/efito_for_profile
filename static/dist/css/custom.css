@@ -1,0 +1,15 @@
+html *
+    {
+    font-family: 'Roboto', sans-serif;
+    }
+a{
+  color: #2dfd3a;
+}
+
+a:hover, a:active, a:focus {
+  color:#2dfd3a;
+}
+
+table, th, td {
+  text-align: center;
+}

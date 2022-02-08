@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+{% load staticfiles %}
+<html lang="en">
+<head>
+    <title>Войдите на efito.uz</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="{% static 'dist/css/adminlte.min.css' %}">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" href="{% static 'plugins/fontawesome-free/css/all.css' %}">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="{% static 'dist/css/animate.css' %}">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="{% static 'dist/css/hamburgers.min.css' %}">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="{% static 'plugins/select2/css/select2.min.css' %}">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="{% static 'plugins/login/util.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'plugins/login/main.css' %}">
+    <!--===============================================================================================-->
+    <style>
+    /* customizable snowflake styling */
+    .snowflake {
+    color: #fff;
+    font-size: 1em;
+    font-family: Arial;
+    text-shadow: 0 0 1px #000;
+    }
+
+    @-webkit-keyframes snowflakes-fall{0%{top:-10%}100%{top:100%}}@-webkit-keyframes snowflakes-shake{0%{-webkit-transform:translateX(0px);transform:translateX(0px)}50%{-webkit-transform:translateX(80px);transform:translateX(80px)}100%{-webkit-transform:translateX(0px);transform:translateX(0px)}}@keyframes snowflakes-fall{0%{top:-10%}100%{top:100%}}@keyframes snowflakes-shake{0%{transform:translateX(0px)}50%{transform:translateX(80px)}100%{transform:translateX(0px)}}.snowflake{position:fixed;top:-10%;z-index:9999;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;cursor:default;-webkit-animation-name:snowflakes-fall,snowflakes-shake;-webkit-animation-duration:10s,3s;-webkit-animation-timing-function:linear,ease-in-out;-webkit-animation-iteration-count:infinite,infinite;-webkit-animation-play-state:running,running;animation-name:snowflakes-fall,snowflakes-shake;animation-duration:10s,3s;animation-timing-function:linear,ease-in-out;animation-iteration-count:infinite,infinite;animation-play-state:running,running}.snowflake:nth-of-type(0){left:1%;-webkit-animation-delay:0s,0s;animation-delay:0s,0s}.snowflake:nth-of-type(1){left:10%;-webkit-animation-delay:1s,1s;animation-delay:1s,1s}.snowflake:nth-of-type(2){left:20%;-webkit-animation-delay:6s,.5s;animation-delay:6s,.5s}.snowflake:nth-of-type(3){left:30%;-webkit-animation-delay:4s,2s;animation-delay:4s,2s}.snowflake:nth-of-type(4){left:40%;-webkit-animation-delay:2s,2s;animation-delay:2s,2s}.snowflake:nth-of-type(5){left:50%;-webkit-animation-delay:8s,3s;animation-delay:8s,3s}.snowflake:nth-of-type(6){left:60%;-webkit-animation-delay:6s,2s;animation-delay:6s,2s}.snowflake:nth-of-type(7){left:70%;-webkit-animation-delay:2.5s,1s;animation-delay:2.5s,1s}.snowflake:nth-of-type(8){left:80%;-webkit-animation-delay:1s,0s;animation-delay:1s,0s}.snowflake:nth-of-type(9){left:90%;-webkit-animation-delay:3s,1.5s;animation-delay:3s,1.5s}
+    /* Demo Purpose Only*/
+    .demo {
+    font-family: 'Raleway', sans-serif;
+        color:red;
+        display: block;
+        margin: 0 auto;
+        padding: 15px 0;
+        text-align: center;
+    }
+    .demo a{
+    font-family: 'Raleway', sans-serif;
+    color: #000;
+    }
+    </style>
+</head>
+<body>
+<!--<div class="snowflakes" aria-hidden="true">-->
+<!--    {% for i in '0123456789101112'|make_list %}-->
+<!--    <div class="snowflake">-->
+<!--        <img src="{% static 'dist/img/snowflake.png' %}" width=30 alt="*">-->
+<!--    </div>-->
+<!--    {% endfor %}-->
+<!--</div>-->
+<div class="limiter">
+    <div class="container-login100">
+        <div class="wrap-login100" style="margin-bottom:0px;">
+            <div class="login100-pic js-tilt" data-tilt>
+                <img src="{% static 'dist/img/logo.png' %}" alt="efito.uz">
+            </div>
+            <form class="login100-form validate-form" method="post" style="margin-top:30px;">
+					<span class="login100-form-title" style="padding-bottom:20px;">
+						Вход пользователя
+					</span>
+                {% csrf_token %}
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                    {{ message|safe }}
+                </div>
+                {% endfor %}
+                <div class="wrap-input100 validate-input" data-validate="Имя пользователя требуется!">
+                    <input required class="input100" type="text" name="username" placeholder="Имя пользователя">
+                    <span class="focus-input100 "></span>
+                    <span class="symbol-input100">
+							<i class="fa fa-envelope" aria-hidden="true"></i>
+                    </span>
+                </div>
+
+                <div class="wrap-input100 validate-input" data-validate="Необходим пароль!">
+                    <input required class="input100" type="password" name="password" placeholder="Пароль">
+                    <span class="focus-input100"></span>
+                    <span class="symbol-input100">
+                        <i class="fa fa-lock" aria-hidden="true"></i>
+                    </span>
+                </div>
+
+                <div class="container-login100-form-btn">
+                    <button class="login100-form-btn">
+                        Войти в систему
+                    </button>
+                </div>
+
+                <div class="container-login100-form-btn">
+                    <a href="{% url 'administration:esi-auth' %}" class="login100-form-btn" style="background-color:#e8c139;">
+                        Вход с помощью ЭЦП
+                    </a>
+                </div>
+<!--                <div class="text-center p-t-12">-->
+<!--                    <span class="txt1">-->
+<!--                        Забыл-->
+<!--                    </span>                    -->
+<!--                    <a class="txt2" href="" style="color: blue;" data-toggle="modal" data-target="#modalConfirmDelete">-->
+<!--                        логин / пароль?-->
+<!--                    </a>-->
+<!--                </div>-->
+            </form>
+        </div>        
+        <!--Modal: modalConfirmDelete-->
+        <div class="modal fade" id="modalConfirmDelete" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog modal-sm modal-notify modal-danger" role="document">
+                <!--Content-->
+                <div class="modal-content text-center">
+                    <!--Header-->
+                    <div class="modal-header d-flex justify-content-center">
+                        <p class="heading">Вы забыли свой пароль или имя пользователя?</p>
+                        <a data-dismiss="modal"><i class="fa fa-times-circle"></i></a>
+                    </div>
+
+                    <!--Body-->
+                    <div class="modal-body">
+                        <i class="fa fa-phone fa-4x animated rotateIn text-blue"></i>
+                    </div>
+
+                    <!--Footer-->
+                    <div class="modal-footer d-flex justify-content-center">
+                        <p class="heading" style="color: green;"><a>+998</a></p>
+                    </div>
+                </div>
+                <!--/.Content-->
+            </div>
+        </div>
+        <!--Modal: modalConfirmDelete-->
+    </div>
+</div>
+
+
+<!--===============================================================================================-->
+<script src="{% static 'plugins/jquery/jquery.min.js' %}"></script>
+<!--===============================================================================================-->
+<script src="{% static 'plugins/popper/umd/popper.js' %}"></script>
+<script src="{% static 'plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+<!--===============================================================================================-->
+<script src="{% static 'plugins/select2/js/select2.min.js' %}"></script>
+<!--===============================================================================================-->
+<script src="{% static 'dist/js/tilt.jquery.min.js' %}"></script>
+<script>
+		$('.js-tilt').tilt({
+			scale: 1.1
+		})
+</script>
+<!--===============================================================================================-->
+<!--<script src="{% static 'plugins/login/main.js' %}"></script>-->
+
+</body>
+</html>`
