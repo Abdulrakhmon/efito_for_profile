@@ -124,28 +124,6 @@ class LocalFSSApplicationAddAPIView(APIView):
                             "comment": local_fss_application_step_status_dict['description']
                     }, status=status.HTTP_202_ACCEPTED)
 
-                if not local_fss_application.is_paid and current_balance < settings.ONE_BASIC_ESTIMATE / 10:
-                    local_fss_application_step_status_dict[
-                        'description'] = f'Sizning hisobingizda mablag` yetarli emas (Mablag`: {current_balance} so`m). Iltimos, avval hisobingizni {float(settings.ONE_BASIC_ESTIMATE / 10) - float(current_balance)} so`mga to`ldiring va qayta yuboring. У вас недостаточно денег на балансе (Балансе: {current_balance} сум). Пожалуйста, пополните баланс и отправьте повторно.'
-                    local_fss_application_step_status_dict['status'] = ApplicationStatuses.ZERO_ZERO_SEVEN
-                    IntegrationData.objects.create(
-                        integration=integration,
-                        data=local_fss_application_step_status_dict
-                    )
-                    LocalFSSApplicationStatusStep.objects.create(
-                        application=local_fss_application,
-                        status=ApplicationStatuses.ZERO_ZERO_SEVEN,
-                        description=local_fss_application_step_status_dict['description'],
-                        sender=user,
-                    )
-                    local_fss_application.status = ApplicationStatuses.ZERO_ZERO_SEVEN
-                    local_fss_application.is_active = False
-                    local_fss_application.save()
-                    return Response({
-                            "request_number": request_number,
-                            "result": 1,
-                            "comment": local_fss_application_step_status_dict['description']
-                    }, status=status.HTTP_202_ACCEPTED)
 
                 serializer = LocalFSSApplicationSerializer(local_fss_application, data=data)
                 if serializer.is_valid():
