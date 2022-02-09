@@ -50,7 +50,6 @@ INSTALLED_APPS = [
     #  third party apps
     'rest_framework',
     'rest_framework.authtoken',  # <-- Here
-    'rest_framework_xml',
     'debug_toolbar',
     'qr_code',
     'corsheaders',
