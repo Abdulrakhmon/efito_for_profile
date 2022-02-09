@@ -101,29 +101,6 @@ class LocalFSSApplicationAddAPIView(APIView):
                 local_fss_application = local_fss_application.first()
                 seconds_ago = (datetime.now() - local_fss_application.added_at).total_seconds()
 
-                if seconds_ago > 3600 * 24 * 7:
-                    local_fss_application_step_status_dict['description'] = 'Ўрнатилган тартибда кўриб чиқиш муддати тугаганлиги сабабли аризангиз қайтарилди. Илтимос, аризани қайтадан киритинг. Заявка отклонена по причине истечения установленного срока рассмотрения. Просим подать заявку заново.'
-                    local_fss_application_step_status_dict['status'] = ApplicationStatuses.ZERO_ONE_NINE
-                    IntegrationData.objects.create(
-                        integration=integration,
-                        data=local_fss_application_step_status_dict
-                    )
-                    local_fss_application.status = ApplicationStatuses.ZERO_ONE_NINE
-                    local_fss_application.is_active = False
-                    local_fss_application.is_paid = False
-                    local_fss_application.save()
-                    LocalFSSApplicationStatusStep.objects.create(
-                        application=local_fss_application,
-                        status=ApplicationStatuses.ZERO_ONE_NINE,
-                        description=local_fss_application_step_status_dict['description'],
-                        sender=user,
-                    )
-                    return Response({
-                            "request_number": request_number,
-                            "result": 1,
-                            "comment": local_fss_application_step_status_dict['description']
-                    }, status=status.HTTP_202_ACCEPTED)
-
                 if not local_fss_application.is_paid and current_balance < settings.ONE_BASIC_ESTIMATE / 10:
                     local_fss_application_step_status_dict[
                         'description'] = f'Sizning hisobingizda mablag` yetarli emas (Mablag`: {current_balance} so`m). Iltimos, avval hisobingizni {float(settings.ONE_BASIC_ESTIMATE / 10) - float(current_balance)} so`mga to`ldiring va qayta yuboring. У вас недостаточно денег на балансе (Балансе: {current_balance} сум). Пожалуйста, пополните баланс и отправьте повторно.'
