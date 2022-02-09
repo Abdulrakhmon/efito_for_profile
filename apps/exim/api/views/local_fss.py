@@ -49,53 +49,6 @@ class LocalFSSApplicationAddAPIView(APIView):
                 "comment": 'Already exist.'
             }, status=status.HTTP_400_BAD_REQUEST)
         else:
-            # start check balance
-            applicant_tin = data.get('applicant_tin')
-            try:
-                organization = Organization.objects.get(tin=applicant_tin)
-            except Organization.DoesNotExist:
-                organization, _ = Organization.objects.get_or_create(tin=applicant_tin, name=data.get('applicant_name'))
-            first_day_of_month = '2022-01-01'
-            balance = Balance.objects.filter(organization=organization, month=first_day_of_month, region_id=region,
-                                             service_type=InvoiceServices.LocalFSS).last()
-            invoices_payments = InvoicePayment.objects.confirmed().filter(invoice__applicant_tin=applicant_tin,
-                                                                          invoice__service_type=InvoiceServices.LocalFSS,
-                                                                          invoice__region_id=region,
-                                                                          payment_date__gte=first_day_of_month)
-            contract_payments = ContractPayment.objects.filter(organization=organization,
-                                                               service_type=InvoiceServices.LocalFSS,
-                                                               region_id=region,
-                                                               payment_date__gte=first_day_of_month)
-            refunds = Refund.objects.filter(organization=organization, service_type=InvoiceServices.LocalFSS,
-                                            region_id=region, refunded_date__gte=first_day_of_month)
-
-            service_amount = 0
-            if balance:
-                current_balance = balance.amount
-            else:
-                current_balance = 0
-
-            invoice_amount = invoices_payments.aggregate(Sum('payment_amount'))['payment_amount__sum']
-            if invoice_amount:
-                current_balance = current_balance + invoice_amount
-
-            contract_payment_amount = contract_payments.aggregate(Sum('payment_amount'))['payment_amount__sum']
-            if contract_payment_amount:
-                current_balance = current_balance + contract_payment_amount
-
-            refund_amount = refunds.aggregate(Sum('amount'))['amount__sum']
-            if refund_amount:
-                current_balance = current_balance - refund_amount
-
-            local_fsses = LocalFSS.objects.filter(applicant_tin=applicant_tin, given_date__gte=first_day_of_month, sender_region_id=region)
-            local_fss_applications = LocalFSSApplication.objects.filter(applicant_tin=applicant_tin, is_paid=True, sender_region_id=region)
-            if local_fsses:
-                service_amount = local_fsses.aggregate(Sum('payment_amount'))['payment_amount__sum']
-            if local_fss_applications:
-                service_amount = float(service_amount) + float(local_fss_applications.count() * settings.ONE_BASIC_ESTIMATE / 10)
-            current_balance = float(current_balance) - float(service_amount)
-            # end check balance
-
             if local_fss_application.filter(
                     status__in=[ApplicationStatuses.ZERO_ZERO_SEVEN, ApplicationStatuses.ZERO_ONE_ZERO]):
                 local_fss_application = local_fss_application.first()
