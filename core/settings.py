@@ -43,7 +43,6 @@ INSTALLED_APPS = [
     'exim.apps.ExImConfig',
     'invoice.apps.InvoiceConfig',
     'lab.apps.LabConfig',
-    'bot.apps.BotConfig',
     'fumigation.apps.FumigationConfig',
     'monitoring.apps.MonitoringConfig',
     'ppp.apps.PppConfig',
