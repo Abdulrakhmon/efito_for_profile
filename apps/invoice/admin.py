@@ -29,10 +29,3 @@ class InvoiceProvidedServiceAdmin(admin.ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return False
-
-
-@admin.register(InvoiceRefund)
-class InvoiceRefundAdmin(admin.ModelAdmin):
-
-    def has_delete_permission(self, request, obj=None):
-        return False
